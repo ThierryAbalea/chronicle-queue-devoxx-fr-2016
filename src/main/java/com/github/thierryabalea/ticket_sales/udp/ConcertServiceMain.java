@@ -1,12 +1,7 @@
-package com.github.thierryabalea.ticket_sales.main;
+package com.github.thierryabalea.ticket_sales.udp;
 
 import com.github.thierryabalea.ticket_sales.api.Message;
 import com.github.thierryabalea.ticket_sales.domain.ConcertService;
-import com.github.thierryabalea.ticket_sales.framework.Dispatcher;
-import com.github.thierryabalea.ticket_sales.framework.Publisher;
-import com.github.thierryabalea.ticket_sales.io.Journaller;
-import com.github.thierryabalea.ticket_sales.io.UdpDataSource;
-import com.github.thierryabalea.ticket_sales.io.UdpEventHandler;
 import com.lmax.disruptor.BlockingWaitStrategy;
 import com.lmax.disruptor.RingBuffer;
 import com.lmax.disruptor.dsl.Disruptor;

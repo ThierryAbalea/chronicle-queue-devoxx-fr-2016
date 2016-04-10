@@ -1,4 +1,4 @@
-package com.github.thierryabalea.ticket_sales.main;
+package com.github.thierryabalea.ticket_sales.web.main;
 
 import java.io.IOException;
 import java.io.InputStream;

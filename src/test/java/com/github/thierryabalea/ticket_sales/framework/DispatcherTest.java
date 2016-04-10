@@ -5,6 +5,7 @@ import static org.mockito.Mockito.*;
 import com.github.thierryabalea.ticket_sales.api.EventType;
 import com.github.thierryabalea.ticket_sales.api.Message;
 import com.github.thierryabalea.ticket_sales.domain.ConcertService;
+import com.github.thierryabalea.ticket_sales.udp.Dispatcher;
 import org.junit.Before;
 import org.junit.Test;
 

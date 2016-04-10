@@ -16,8 +16,8 @@ import com.lmax.disruptor.RingBuffer;
 import com.lmax.disruptor.dsl.Disruptor;
 import com.github.thierryabalea.ticket_sales.api.EventType;
 import com.github.thierryabalea.ticket_sales.api.Message;
-import com.github.thierryabalea.ticket_sales.io.UdpEventHandler;
-import com.github.thierryabalea.ticket_sales.main.ConcertServiceMain;
+import com.github.thierryabalea.ticket_sales.udp.UdpEventHandler;
+import com.github.thierryabalea.ticket_sales.udp.ConcertServiceMain;
 
 public class TestTest
 {

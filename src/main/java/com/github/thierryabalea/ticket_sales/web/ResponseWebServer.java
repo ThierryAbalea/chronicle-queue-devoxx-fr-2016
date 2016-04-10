@@ -6,15 +6,10 @@ import com.github.thierryabalea.ticket_sales.api.ConcertCreated;
 import com.github.thierryabalea.ticket_sales.api.EventType;
 import com.github.thierryabalea.ticket_sales.api.Message;
 import com.github.thierryabalea.ticket_sales.api.SectionUpdated;
-import com.github.thierryabalea.ticket_sales.io.UdpDataSource;
 import com.github.thierryabalea.ticket_sales.web.json.AllocationApprovedToJson;
 import com.github.thierryabalea.ticket_sales.web.json.AllocationRejectedToJson;
 import com.github.thierryabalea.ticket_sales.web.json.ConcertCreatedToJson;
 import com.github.thierryabalea.ticket_sales.web.json.SectionUpdatedToJson;
-import com.lmax.disruptor.EventHandler;
-import com.lmax.disruptor.RingBuffer;
-import com.lmax.disruptor.dsl.Disruptor;
-import com.lmax.disruptor.util.DaemonThreadFactory;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import net.minidev.json.JSONArray;
@@ -23,8 +18,6 @@ import net.minidev.json.JSONValue;
 import org.rapidoid.commons.MediaType;
 import org.rapidoid.http.Req;
 import org.rapidoid.http.fast.On;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -32,19 +25,17 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
 
-public class ResponseServer implements EventHandler<Message> {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ResponseServer.class);
-    private static final int RESPONSE_UDP_PORT = 50002;
-    private final Executor executor = Executors.newCachedThreadPool();
-    private RingBuffer<Message> ringBuffer;
+public class ResponseWebServer {
+
+    public interface PollHandler {
+        void onPoll(long accountId, long version);
+    }
 
     // Event data
-    private final Long2ObjectMap<JSONArray> eventsByAccountId = new Long2ObjectOpenHashMap<JSONArray>();
-    private final Long2ObjectMap<JSONObject> concertsByConcertId = new Long2ObjectOpenHashMap<JSONObject>();
-    private final Map<SectionKey, JSONObject> sectionUpdatedByKey = new HashMap<SectionKey, JSONObject>();
+    private final Long2ObjectMap<JSONArray> eventsByAccountId = new Long2ObjectOpenHashMap<>();
+    private final Long2ObjectMap<JSONObject> concertsByConcertId = new Long2ObjectOpenHashMap<>();
+    private final Map<SectionKey, JSONObject> sectionUpdatedByKey = new HashMap<>();
 
     // Translators
     private final ConcertCreatedToJson concertCreatedToJson = new ConcertCreatedToJson();
@@ -53,24 +44,12 @@ public class ResponseServer implements EventHandler<Message> {
     private final AllocationRejectedToJson allocationRejectedToJson = new AllocationRejectedToJson();
 
     // Current contexts
-    private final ConcurrentMap<Long, Req> requestsByAccount = new ConcurrentHashMap<Long, Req>();
+    private final ConcurrentMap<Long, Req> requestsByAccount = new ConcurrentHashMap<>();
 
-    public void init() throws IOException {
-        int port = RESPONSE_UDP_PORT;
+    private PollHandler pollHandler;
 
-        Disruptor<Message> disruptor = new Disruptor<>(
-                Message.FACTORY,
-                1024,
-                DaemonThreadFactory.INSTANCE);
-
-        disruptor.handleEventsWith(this);
-        ringBuffer = disruptor.start();
-
-        UdpDataSource udpDataSource = new UdpDataSource(ringBuffer, port);
-        udpDataSource.bind();
-        executor.execute(udpDataSource);
-
-        LOGGER.info("Listening on {}", port);
+    public void init(PollHandler pollHandler) throws IOException {
+        this.pollHandler = pollHandler;
 
         On.post("/response").plain((Req req) -> {
             doPost(req);
@@ -78,7 +57,6 @@ public class ResponseServer implements EventHandler<Message> {
         });
     }
 
-    @Override
     public void onEvent(Message message, long sequence, boolean endOfBatch) throws Exception {
         EventType type = (EventType) message.type.get();
 
@@ -185,12 +163,7 @@ public class ResponseServer implements EventHandler<Message> {
         req.async();
         requestsByAccount.put(accountId, req);
 
-        long next = ringBuffer.next();
-        Message message = ringBuffer.get(next);
-        message.type.set(EventType.POLL);
-        message.event.asPoll.accountId.set(accountId);
-        message.event.asPoll.version.set(version);
-        ringBuffer.publish(next);
+        pollHandler.onPoll(accountId, version);
     }
 
     private SectionKey sectionKeyFrom(final SectionUpdated sectionUpdated) {

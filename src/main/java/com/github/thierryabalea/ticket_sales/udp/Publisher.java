@@ -1,4 +1,4 @@
-package com.github.thierryabalea.ticket_sales.framework;
+package com.github.thierryabalea.ticket_sales.udp;
 
 import com.github.thierryabalea.ticket_sales.api.Message;
 import com.github.thierryabalea.ticket_sales.api.RejectionReason;

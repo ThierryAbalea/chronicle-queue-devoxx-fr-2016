@@ -1,4 +1,4 @@
-package com.github.thierryabalea.ticket_sales.io;
+package com.github.thierryabalea.ticket_sales.udp;
 
 import java.io.File;
 import java.io.RandomAccessFile;
