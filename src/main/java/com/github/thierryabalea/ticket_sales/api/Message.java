@@ -28,13 +28,9 @@ public class Message extends Struct
         return "Message [type=" + type.get() + "]";
     }
 
-    public final static EventFactory<Message> FACTORY = new EventFactory<Message>()
-    {
-        public Message newInstance()
-        {
-            Message message = new Message();
-            message.setByteBuffer(ByteBuffer.allocate(message.size()), 0);
-            return message;
-        }
+    public final static EventFactory<Message> FACTORY = () -> {
+        Message message = new Message();
+        message.setByteBuffer(ByteBuffer.allocate(message.size()), 0);
+        return message;
     };
 }

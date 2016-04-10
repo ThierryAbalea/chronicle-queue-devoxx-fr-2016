@@ -1,11 +1,10 @@
 package com.github.thierryabalea.ticket_sales.framework;
 
 import com.github.thierryabalea.ticket_sales.domain.ConcertService;
-import com.lmax.disruptor.EventHandler;
 import com.github.thierryabalea.ticket_sales.api.EventType;
 import com.github.thierryabalea.ticket_sales.api.Message;
 
-public class Dispatcher implements EventHandler<Message>
+public class Dispatcher
 {
     private final ConcertService service;
 
