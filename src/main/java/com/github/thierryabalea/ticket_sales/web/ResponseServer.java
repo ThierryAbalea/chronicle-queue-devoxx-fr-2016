@@ -3,6 +3,10 @@ package com.github.thierryabalea.ticket_sales.web;
 import com.github.thierryabalea.ticket_sales.api.AllocationApproved;
 import com.github.thierryabalea.ticket_sales.api.AllocationRejected;
 import com.github.thierryabalea.ticket_sales.api.ConcertCreated;
+import com.github.thierryabalea.ticket_sales.api.EventType;
+import com.github.thierryabalea.ticket_sales.api.Message;
+import com.github.thierryabalea.ticket_sales.api.SectionUpdated;
+import com.github.thierryabalea.ticket_sales.io.UdpDataSource;
 import com.github.thierryabalea.ticket_sales.web.json.AllocationApprovedToJson;
 import com.github.thierryabalea.ticket_sales.web.json.AllocationRejectedToJson;
 import com.github.thierryabalea.ticket_sales.web.json.ConcertCreatedToJson;
@@ -10,10 +14,7 @@ import com.github.thierryabalea.ticket_sales.web.json.SectionUpdatedToJson;
 import com.lmax.disruptor.EventHandler;
 import com.lmax.disruptor.RingBuffer;
 import com.lmax.disruptor.dsl.Disruptor;
-import com.github.thierryabalea.ticket_sales.api.EventType;
-import com.github.thierryabalea.ticket_sales.api.Message;
-import com.github.thierryabalea.ticket_sales.api.SectionUpdated;
-import com.github.thierryabalea.ticket_sales.io.UdpDataSource;
+import com.lmax.disruptor.util.DaemonThreadFactory;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import net.minidev.json.JSONArray;
@@ -57,7 +58,11 @@ public class ResponseServer implements EventHandler<Message> {
     public void init() throws IOException {
         int port = RESPONSE_UDP_PORT;
 
-        Disruptor<Message> disruptor = new Disruptor<Message>(Message.FACTORY, 1024, executor);
+        Disruptor<Message> disruptor = new Disruptor<>(
+                Message.FACTORY,
+                1024,
+                DaemonThreadFactory.INSTANCE);
+
         disruptor.handleEventsWith(this);
         ringBuffer = disruptor.start();
 
