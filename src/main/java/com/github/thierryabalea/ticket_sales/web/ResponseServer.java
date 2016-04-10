@@ -146,11 +146,6 @@ public class ResponseServer implements EventHandler<Message> {
     }
 
     private void enqueueEvent(long accountId, JSONObject jsonEvent) {
-//        if (!requestsByAccount.containsKey(accountId))
-//        {
-//            return;
-//        }
-
         JSONArray events = getEventsForAccount(accountId);
         events.add(jsonEvent);
 
