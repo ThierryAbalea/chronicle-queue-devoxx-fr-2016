@@ -1,14 +1,11 @@
 package com.github.thierryabalea.ticket_sales.udp;
 
-import com.github.thierryabalea.ticket_sales.api.Message;
-import com.github.thierryabalea.ticket_sales.api.RejectionReason;
-import com.github.thierryabalea.ticket_sales.api.TicketPurchase;
-import com.github.thierryabalea.ticket_sales.domain.Concert;
+import com.github.thierryabalea.ticket_sales.api.*;
 import com.github.thierryabalea.ticket_sales.domain.ConcertServiceListener;
-import com.github.thierryabalea.ticket_sales.translate.ConcertAvailableTranslator;
-import com.github.thierryabalea.ticket_sales.translate.PurchaseApprovedTranslator;
-import com.github.thierryabalea.ticket_sales.translate.PurchaseRejectedTranslator;
-import com.github.thierryabalea.ticket_sales.translate.SectionUpdatedTranslator;
+import com.github.thierryabalea.ticket_sales.udp.translate.ConcertCreatedTranslator;
+import com.github.thierryabalea.ticket_sales.udp.translate.PurchaseApprovedTranslator;
+import com.github.thierryabalea.ticket_sales.udp.translate.AllocationRejectedTranslator;
+import com.github.thierryabalea.ticket_sales.udp.translate.SectionUpdatedTranslator;
 import com.lmax.disruptor.RingBuffer;
 
 public class Publisher implements ConcertServiceListener {
@@ -18,19 +15,19 @@ public class Publisher implements ConcertServiceListener {
         this.ringBuffer = ringBuffer;
     }
 
-    public void onConcertAvailable(Concert concert) {
-        ringBuffer.publishEvent(ConcertAvailableTranslator::translateTo, concert);
+    public void onConcertAvailable(ConcertCreated concertCreated) {
+        ringBuffer.publishEvent(ConcertCreatedTranslator::translateTo, concertCreated);
     }
 
-    public void onPurchaseApproved(TicketPurchase ticketPurchase) {
-        ringBuffer.publishEvent(PurchaseApprovedTranslator::translateTo, ticketPurchase);
+    public void onAllocationApproved(AllocationApproved allocationApproved) {
+        ringBuffer.publishEvent(PurchaseApprovedTranslator::translateTo, allocationApproved);
     }
 
-    public void onPurchaseRejected(RejectionReason rejectionReason, TicketPurchase ticketPurchase) {
-        ringBuffer.publishEvent(PurchaseRejectedTranslator::translateTo, rejectionReason, ticketPurchase);
+    public void onAllocationRejected(AllocationRejected allocationRejected) {
+        ringBuffer.publishEvent(AllocationRejectedTranslator::translateTo, allocationRejected);
     }
 
-    public void onSectionUpdated(long concertId, long sectionId, int seatsAvailable) {
-        ringBuffer.publishEvent(SectionUpdatedTranslator::translateTo, concertId, sectionId, seatsAvailable);
+    public void onSectionUpdated(SectionUpdated sectionUpdated) {
+        ringBuffer.publishEvent(SectionUpdatedTranslator::translateTo, sectionUpdated);
     }
 }

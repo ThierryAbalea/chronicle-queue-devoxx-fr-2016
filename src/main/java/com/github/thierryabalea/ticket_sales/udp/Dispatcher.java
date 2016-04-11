@@ -2,7 +2,6 @@ package com.github.thierryabalea.ticket_sales.udp;
 
 import com.github.thierryabalea.ticket_sales.api.ConcertCreated;
 import com.github.thierryabalea.ticket_sales.api.EventType;
-import com.github.thierryabalea.ticket_sales.api.Message;
 import com.github.thierryabalea.ticket_sales.api.TicketPurchase;
 import com.github.thierryabalea.ticket_sales.domain.ConcertService;
 

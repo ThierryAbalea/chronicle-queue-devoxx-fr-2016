@@ -1,12 +1,13 @@
 package com.github.thierryabalea.ticket_sales.domain;
 
-import com.github.thierryabalea.ticket_sales.api.RejectionReason;
-import com.github.thierryabalea.ticket_sales.api.TicketPurchase;
+import com.github.thierryabalea.ticket_sales.api.*;
 
-public interface ConcertServiceListener
-{
-    void onConcertAvailable(Concert concert);
-    void onPurchaseApproved(TicketPurchase ticketPurchase);
-    void onPurchaseRejected(RejectionReason rejectionReason, TicketPurchase ticketPurchase);
-    void onSectionUpdated(long concertId, long sectionId, int seatsAvailable);
+public interface ConcertServiceListener {
+    void onConcertAvailable(ConcertCreated concertCreated);
+
+    void onAllocationApproved(AllocationApproved allocationApproved);
+
+    void onAllocationRejected(AllocationRejected allocationRejected);
+
+    void onSectionUpdated(SectionUpdated sectionUpdated);
 }

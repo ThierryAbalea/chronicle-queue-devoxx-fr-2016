@@ -1,7 +1,5 @@
 package com.github.thierryabalea.ticket_sales.web.json;
 
-import com.github.thierryabalea.ticket_sales.api.EventType;
-import com.github.thierryabalea.ticket_sales.api.Message;
 import com.github.thierryabalea.ticket_sales.api.TicketPurchase;
 import net.minidev.json.JSONObject;
 import net.minidev.json.parser.JSONParser;
@@ -11,22 +9,17 @@ import org.junit.Test;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
-public class TicketPurchaseFromJsonTest
-{
+public class TicketPurchaseFromJsonTest {
 
     @SuppressWarnings("rawtypes")
     @Test
-    public void shouldParseValidJson() throws ParseException
-    {
+    public void shouldParseValidJson() throws ParseException {
         String json = "{\"concertId\":4000000000,\"sectionId\":5,\"numSeats\":2,\"accountId\":3411,\"requestId\":9123}";
         JSONParser parser = new JSONParser(JSONParser.MODE_RFC4627);
         JSONObject object = (JSONObject) parser.parse(json);
 
-        Message message = new Message();
-        TicketPurchaseFromJson.translateTo(message, 0, object);
-        
-        assertThat(message.type, is((Enum) EventType.TICKET_PURCHASE));
-        TicketPurchase ticketPurchase = (TicketPurchase) message.event;
+        TicketPurchase ticketPurchase = TicketPurchaseFromJson.fromJson(object);
+
         assertThat(ticketPurchase.concertId, is(4000000000L));
         assertThat(ticketPurchase.sectionId, is(5L));
         assertThat(ticketPurchase.numSeats, is(2));

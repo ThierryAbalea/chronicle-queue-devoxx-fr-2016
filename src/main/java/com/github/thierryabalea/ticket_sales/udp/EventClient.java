@@ -6,7 +6,7 @@ import java.util.Arrays;
 
 public class EventClient {
     public static void main(String[] args) throws Exception {
-        UdpEventHandler udpEventHandler = new UdpEventHandler("localhost", ConcertServiceMain.SERVER_PORT);
+        UdpEventHandler udpEventHandler = new UdpEventHandler("localhost", UDPConcertServiceMain.SERVER_PORT);
         long concertId = System.currentTimeMillis();
 
         ConcertCreated concertCreated = new ConcertCreated(

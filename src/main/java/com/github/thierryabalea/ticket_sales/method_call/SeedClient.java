@@ -1,14 +1,14 @@
-package com.github.thierryabalea.ticket_sales.udp;
+package com.github.thierryabalea.ticket_sales.method_call;
 
 import com.github.thierryabalea.ticket_sales.api.ConcertCreated;
-import com.github.thierryabalea.ticket_sales.api.EventType;
 import com.github.thierryabalea.ticket_sales.api.SectionSeating;
+import com.github.thierryabalea.ticket_sales.domain.ConcertService;
 
 import java.util.Arrays;
 
 public class SeedClient {
-    public static void main(String[] args) throws Exception {
-        UdpEventHandler udpEventHandler = new UdpEventHandler("localhost", UDPConcertServiceMain.SERVER_PORT);
+
+    public static void createConcerts(ConcertService concertService) throws Exception {
         {
             long concertId = 1L;
             ConcertCreated concertCreated = new ConcertCreated(
@@ -27,11 +27,7 @@ public class SeedClient {
                             new SectionSeating(7, "Section G", 58.50F, Integer.MAX_VALUE),
                             new SectionSeating(8, "Section H", 78.89F, Integer.MAX_VALUE))
             );
-
-            Message m1 = new Message();
-            m1.type = EventType.CONCERT_CREATED;
-            m1.event = concertCreated;
-            udpEventHandler.onEvent(m1, 0, true);
+            concertService.on(concertCreated);
         }
 
         {
@@ -53,11 +49,7 @@ public class SeedClient {
                             new SectionSeating(8, "Section H", 78.89F, Integer.MAX_VALUE)
                     )
             );
-
-            Message m1 = new Message();
-            m1.event =  concertCreated;
-            m1.type = EventType.CONCERT_CREATED;
-            udpEventHandler.onEvent(m1, 0, true);
+            concertService.on(concertCreated);
         }
     }
 }

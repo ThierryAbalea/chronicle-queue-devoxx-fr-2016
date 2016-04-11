@@ -1,14 +1,14 @@
 package com.github.thierryabalea.ticket_sales.udp;
 
-import com.github.thierryabalea.ticket_sales.api.EventType;
-import com.github.thierryabalea.ticket_sales.api.Message;
-import com.github.thierryabalea.ticket_sales.api.Poll;
+import com.github.thierryabalea.ticket_sales.api.*;
+import com.github.thierryabalea.ticket_sales.domain.ConcertServiceListener;
 import com.github.thierryabalea.ticket_sales.web.RequestWebServer;
 import com.github.thierryabalea.ticket_sales.web.ResponseWebServer;
 import com.github.thierryabalea.ticket_sales.web.json.TicketPurchaseFromJson;
 import com.lmax.disruptor.RingBuffer;
 import com.lmax.disruptor.dsl.Disruptor;
 import com.lmax.disruptor.util.DaemonThreadFactory;
+import net.minidev.json.JSONObject;
 import org.rapidoid.http.fast.On;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,11 +46,16 @@ public class UdpWebMain {
         RingBuffer<Message> ringBuffer = disruptor.start();
 
         RequestWebServer.JsonRequestHandler requestHandler = request ->
-                ringBuffer.publishEvent(TicketPurchaseFromJson::translateTo, request);
+                ringBuffer.publishEvent(UdpWebMain::translateTo, request);
         RequestWebServer requestWebServer =
                 new RequestWebServer(requestHandler);
 
         requestWebServer.init();
+    }
+
+    private static void translateTo(Message message, long sequence, JSONObject object) {
+        message.type = EventType.TICKET_PURCHASE;
+        message.event = TicketPurchaseFromJson.fromJson(object);
     }
 
     private static void startResponseDisruptorAndWebServer() throws Exception {
@@ -61,7 +66,8 @@ public class UdpWebMain {
                 1024,
                 DaemonThreadFactory.INSTANCE);
         ResponseWebServer responseWebServer = new ResponseWebServer();
-        disruptor.handleEventsWith(responseWebServer::onEvent);
+        EventProcessor eventProcessor = new EventProcessor(responseWebServer);
+        disruptor.handleEventsWith(eventProcessor::onEvent);
         RingBuffer<Message> ringBuffer = disruptor.start();
 
         UdpDataSource udpDataSource = new UdpDataSource(ringBuffer, port);
@@ -71,14 +77,40 @@ public class UdpWebMain {
 
         LOGGER.info("Listening on {}", port);
 
-        ResponseWebServer.PollHandler pollHandler = (accountId, version) -> {
-            long next = ringBuffer.next();
-            Message message = ringBuffer.get(next);
-            message.type = EventType.POLL;
-            message.event = new Poll(accountId, version);
-            ringBuffer.publish(next);
-        };
+        responseWebServer.init();
+    }
 
-        responseWebServer.init(pollHandler);
+    public static class EventProcessor {
+        private ConcertServiceListener listener;
+
+        public EventProcessor(ConcertServiceListener listener) {
+            this.listener = listener;
+        }
+
+        public void onEvent(Message message, long sequence, boolean endOfBatch) throws Exception {
+            EventType type = message.type;
+
+            switch (type) {
+                case CONCERT_CREATED:
+                    final ConcertCreated concertCreated = (ConcertCreated) message.event;
+                    listener.onConcertAvailable(concertCreated);
+                    break;
+
+                case SECTION_UPDATED:
+                    final SectionUpdated sectionUpdated = (SectionUpdated) message.event;
+                    listener.onSectionUpdated(sectionUpdated);
+                    break;
+
+                case ALLOCATION_APPROVED:
+                    final AllocationApproved allocationApproved = (AllocationApproved) message.event;
+                    listener.onAllocationApproved(allocationApproved);
+                    break;
+
+                case ALLOCATION_REJECTED:
+                    final AllocationRejected rejection = (AllocationRejected) message.event;
+                    listener.onAllocationRejected(rejection);
+                    break;
+            }
+        }
     }
 }

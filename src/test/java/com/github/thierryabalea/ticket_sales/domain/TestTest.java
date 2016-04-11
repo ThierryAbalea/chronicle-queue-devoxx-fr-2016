@@ -2,8 +2,8 @@ package com.github.thierryabalea.ticket_sales.domain;
 
 import com.github.thierryabalea.ticket_sales.api.AllocationApproved;
 import com.github.thierryabalea.ticket_sales.api.EventType;
-import com.github.thierryabalea.ticket_sales.api.Message;
-import com.github.thierryabalea.ticket_sales.udp.ConcertServiceMain;
+import com.github.thierryabalea.ticket_sales.udp.Message;
+import com.github.thierryabalea.ticket_sales.udp.UDPConcertServiceMain;
 import com.github.thierryabalea.ticket_sales.udp.UdpEventHandler;
 import com.lmax.disruptor.RingBuffer;
 import com.lmax.disruptor.dsl.Disruptor;
@@ -61,7 +61,7 @@ public class TestTest
     {
         Executor executor = Executors.newCachedThreadPool();
         Disruptor<Message> requestDisruptor = new Disruptor<Message>(Message.FACTORY, 1024, executor);
-        requestDisruptor.handleEventsWith(new UdpEventHandler("localhost", ConcertServiceMain.CLIENT_PORT));
+        requestDisruptor.handleEventsWith(new UdpEventHandler("localhost", UDPConcertServiceMain.CLIENT_PORT));
         RingBuffer<Message> requestBuffer1 = requestDisruptor.start();
         
         RingBuffer<Message> requestBuffer = requestBuffer1;

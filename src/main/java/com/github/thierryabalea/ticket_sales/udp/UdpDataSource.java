@@ -1,6 +1,5 @@
 package com.github.thierryabalea.ticket_sales.udp;
 
-import com.github.thierryabalea.ticket_sales.api.Message;
 import com.lmax.disruptor.RingBuffer;
 import net.openhft.chronicle.bytes.Bytes;
 import net.openhft.chronicle.wire.TextWire;

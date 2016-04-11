@@ -1,6 +1,5 @@
 package com.github.thierryabalea.ticket_sales.udp;
 
-import com.github.thierryabalea.ticket_sales.api.Message;
 import com.github.thierryabalea.ticket_sales.domain.ConcertService;
 import com.lmax.disruptor.BlockingWaitStrategy;
 import com.lmax.disruptor.RingBuffer;
@@ -11,7 +10,7 @@ import com.lmax.disruptor.util.DaemonThreadFactory;
 import java.io.File;
 import java.io.IOException;
 
-public class ConcertServiceMain {
+public class UDPConcertServiceMain {
     public static final int SERVER_PORT = 50001;
     public static final int CLIENT_PORT = 50002;
 

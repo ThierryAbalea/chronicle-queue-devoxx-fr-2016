@@ -1,6 +1,10 @@
 package com.github.thierryabalea.ticket_sales.web;
 
-import com.github.thierryabalea.ticket_sales.api.*;
+import com.github.thierryabalea.ticket_sales.api.AllocationApproved;
+import com.github.thierryabalea.ticket_sales.api.AllocationRejected;
+import com.github.thierryabalea.ticket_sales.api.ConcertCreated;
+import com.github.thierryabalea.ticket_sales.api.SectionUpdated;
+import com.github.thierryabalea.ticket_sales.domain.ConcertServiceListener;
 import com.github.thierryabalea.ticket_sales.web.json.AllocationApprovedToJson;
 import com.github.thierryabalea.ticket_sales.web.json.AllocationRejectedToJson;
 import com.github.thierryabalea.ticket_sales.web.json.ConcertCreatedToJson;
@@ -21,11 +25,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-public class ResponseWebServer {
-
-    public interface PollHandler {
-        void onPoll(long accountId, long version);
-    }
+public class ResponseWebServer implements ConcertServiceListener {
 
     // Event data
     private final Long2ObjectMap<JSONArray> eventsByAccountId = new Long2ObjectOpenHashMap<>();
@@ -41,59 +41,35 @@ public class ResponseWebServer {
     // Current contexts
     private final ConcurrentMap<Long, Req> requestsByAccount = new ConcurrentHashMap<>();
 
-    private PollHandler pollHandler;
-
-    public void init(PollHandler pollHandler) throws IOException {
-        this.pollHandler = pollHandler;
-
+    public void init() throws IOException {
         On.post("/response").plain((Req req) -> {
             doPost(req);
             return "OK";
         });
     }
 
-    public void onEvent(Message message, long sequence, boolean endOfBatch) throws Exception {
-        EventType type = (EventType) message.type;
+    @Override
+    public void onConcertAvailable(ConcertCreated concertCreated) {
+        JSONObject concertCreatedAsJson = concertCreatedToJson.toJson(concertCreated);
+        concertsByConcertId.put(concertCreated.concertId, concertCreatedAsJson);
+        enqueueEvent(concertCreatedAsJson);
+    }
 
-        switch (type) {
-            case CONCERT_CREATED:
-                final ConcertCreated concertCreated = (ConcertCreated) message.event;
-                JSONObject concertCreatedAsJson = concertCreatedToJson.toJson(concertCreated);
-                concertsByConcertId.put(concertCreated.concertId, concertCreatedAsJson);
-                enqueueEvent(concertCreatedAsJson);
-                break;
+    @Override
+    public void onSectionUpdated(SectionUpdated sectionUpdated) {
+        JSONObject sectionUpdatedAsJson = sectionUpdatedToJson.toJson(sectionUpdated);
+        sectionUpdatedByKey.put(sectionKeyFrom(sectionUpdated), sectionUpdatedAsJson);
+        enqueueEvent(sectionUpdatedAsJson);
+    }
 
-            case SECTION_UPDATED:
-                final SectionUpdated sectionUpdated = (SectionUpdated) message.event;
-                JSONObject sectionUpdatedAsJson = sectionUpdatedToJson.toJson(sectionUpdated);
-                sectionUpdatedByKey.put(sectionKeyFrom(sectionUpdated), sectionUpdatedAsJson);
-                enqueueEvent(sectionUpdatedAsJson);
-                break;
+    @Override
+    public void onAllocationApproved(AllocationApproved allocationApproved) {
+        enqueueEvent(allocationApproved.accountId, allocationApprovedToJson.toJson(allocationApproved));
+    }
 
-            case ALLOCATION_APPROVED:
-                final AllocationApproved approval = (AllocationApproved) message.event;
-                enqueueEvent(approval.accountId, allocationApprovedToJson.toJson(approval));
-                break;
-
-            case ALLOCATION_REJECTED:
-                final AllocationRejected rejection = (AllocationRejected) message.event;
-                enqueueEvent(rejection.accountId, allocationRejectedToJson.toJson(rejection));
-                break;
-
-            case POLL:
-                Poll poll = (Poll) message.event;
-                long accountId =poll.accountId;
-                long version = poll.version;
-                JSONArray events = eventsByAccountId.get(accountId);
-
-                events = getUpdatedValues(events, concertsByConcertId.values(), version);
-                events = getUpdatedValues(events, sectionUpdatedByKey.values(), version);
-
-                if (null != events && !events.isEmpty()) {
-                    dispatch(accountId, events);
-                }
-                break;
-        }
+    @Override
+    public void onAllocationRejected(AllocationRejected allocationRejected) {
+        enqueueEvent(allocationRejected.accountId, allocationRejectedToJson.toJson(allocationRejected));
     }
 
     private JSONArray getUpdatedValues(JSONArray events, Collection<JSONObject> values, long version) {
@@ -156,10 +132,19 @@ public class ResponseWebServer {
     private void doPost(Req req) {
         long accountId = Long.parseLong(req.param("account"));
         long version = Long.parseLong(req.param("version"));
-        req.async();
+
         requestsByAccount.put(accountId, req);
 
-        pollHandler.onPoll(accountId, version);
+        JSONArray events = eventsByAccountId.get(accountId);
+
+        events = getUpdatedValues(events, concertsByConcertId.values(), version);
+        events = getUpdatedValues(events, sectionUpdatedByKey.values(), version);
+
+        if (null != events && !events.isEmpty()) {
+            dispatch(accountId, events);
+        } else {
+            req.async();
+        }
     }
 
     private SectionKey sectionKeyFrom(final SectionUpdated sectionUpdated) {
