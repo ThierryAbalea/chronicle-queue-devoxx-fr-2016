@@ -11,10 +11,10 @@ public class SectionUpdatedToJson
     {
         JSONObject json = new JSONObject();
         
-        json.put("concertId",      sectionUpdated.concertId.get());
-        json.put("sectionId",      sectionUpdated.sectionId.get());
-        json.put("version",        sectionUpdated.version.get());
-        json.put("seatsAvailable", sectionUpdated.seatsAvailable.get());
+        json.put("concertId",      sectionUpdated.concertId);
+        json.put("sectionId",      sectionUpdated.sectionId);
+        json.put("version",        sectionUpdated.version);
+        json.put("seatsAvailable", sectionUpdated.seatsAvailable);
         json.put("type",           EventType.SECTION_UPDATED.name());
         
         return json;

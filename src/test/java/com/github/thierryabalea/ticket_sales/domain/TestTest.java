@@ -1,23 +1,22 @@
 package com.github.thierryabalea.ticket_sales.domain;
 
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
-
+import com.github.thierryabalea.ticket_sales.api.AllocationApproved;
+import com.github.thierryabalea.ticket_sales.api.EventType;
+import com.github.thierryabalea.ticket_sales.api.Message;
+import com.github.thierryabalea.ticket_sales.udp.ConcertServiceMain;
+import com.github.thierryabalea.ticket_sales.udp.UdpEventHandler;
+import com.lmax.disruptor.RingBuffer;
+import com.lmax.disruptor.dsl.Disruptor;
 import javolution.io.Union;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
 import net.minidev.json.JSONValue;
-
 import org.junit.Test;
 
-import com.lmax.disruptor.RingBuffer;
-import com.lmax.disruptor.dsl.Disruptor;
-import com.github.thierryabalea.ticket_sales.api.EventType;
-import com.github.thierryabalea.ticket_sales.api.Message;
-import com.github.thierryabalea.ticket_sales.udp.UdpEventHandler;
-import com.github.thierryabalea.ticket_sales.udp.ConcertServiceMain;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 public class TestTest
 {
@@ -71,10 +70,11 @@ public class TestTest
         {
             long next = requestBuffer.next();        
             Message m = requestBuffer.get(next);
-            m.type.set(EventType.ALLOCATION_APPROVED);
-            m.event.asAllocationApproved.accountId.set(12);
-            m.event.asAllocationApproved.requestId.set(10);
-            m.event.asAllocationApproved.numSeats.set(1);
+
+            AllocationApproved allocationApproved = new AllocationApproved(12, 10,1);
+            m = new Message();
+            m.type = EventType.ALLOCATION_APPROVED;
+            m.event = allocationApproved;
             requestBuffer.publish(next);
         }
         

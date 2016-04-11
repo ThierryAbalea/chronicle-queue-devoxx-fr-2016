@@ -1,11 +1,17 @@
 package com.github.thierryabalea.ticket_sales.api;
 
-import javolution.io.Struct;
+import net.openhft.chronicle.wire.AbstractMarshallable;
 
-public class SectionUpdated extends Struct
-{
-    public final Signed64 concertId      = new Signed64();
-    public final Signed64 sectionId      = new Signed64();
-    public final Signed64 version        = new Signed64();
-    public final Signed32 seatsAvailable = new Signed32();
+public class SectionUpdated extends AbstractMarshallable implements TicketingEvent {
+    public final long concertId;
+    public final long sectionId;
+    public final long version;
+    public final int seatsAvailable;
+
+    public SectionUpdated(long concertId, long sectionId, long version, int seatsAvailable) {
+        this.concertId = concertId;
+        this.sectionId = sectionId;
+        this.version = version;
+        this.seatsAvailable = seatsAvailable;
+    }
 }

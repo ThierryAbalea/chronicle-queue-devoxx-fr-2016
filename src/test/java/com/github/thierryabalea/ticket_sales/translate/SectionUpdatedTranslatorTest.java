@@ -15,12 +15,12 @@ public class SectionUpdatedTranslatorTest {
         Message message = new Message();
         SectionUpdatedTranslator.translateTo(message, 0, 1234, 5678, 90);
 
-        assertThat(message.type.get(), is((Enum) EventType.SECTION_UPDATED));
-        SectionUpdated sectionUpdated = message.event.asSectionUpdated;
+        assertThat(message.type, is((Enum) EventType.SECTION_UPDATED));
+        SectionUpdated sectionUpdated = (SectionUpdated) message.event;
 
-        assertThat(sectionUpdated.concertId.get(), is(1234L));
-        assertThat(sectionUpdated.sectionId.get(), is(5678L));
-        assertThat(sectionUpdated.seatsAvailable.get(), is(90));
+        assertThat(sectionUpdated.concertId, is(1234L));
+        assertThat(sectionUpdated.sectionId, is(5678L));
+        assertThat(sectionUpdated.seatsAvailable, is(90));
     }
 
 }

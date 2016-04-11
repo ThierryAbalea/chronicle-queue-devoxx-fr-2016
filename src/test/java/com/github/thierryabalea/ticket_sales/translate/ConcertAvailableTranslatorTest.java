@@ -29,18 +29,18 @@ public class ConcertAvailableTranslatorTest {
         Message message = new Message();
         ConcertAvailableTranslator.translateTo(message, 0, concert);
 
-        assertThat(message.type.get(), is((Enum) EventType.CONCERT_CREATED));
-        ConcertCreated concertCreated = message.event.asConcertCreated;
-        assertThat(concertCreated.concertId.get(), is(concert.getId()));
-        assertThat(concertCreated.name.get(), is(concert.getName()));
-        assertThat(concertCreated.venue.get(), is(concert.getVenue()));
-        assertThat(concertCreated.numSections.get(), is((short) seating.size()));
+        assertThat(message.type, is((Enum) EventType.CONCERT_CREATED));
+        ConcertCreated concertCreated = (ConcertCreated) message.event;
+        assertThat(concertCreated.concertId, is(concert.getId()));
+        assertThat(concertCreated.name, is(concert.getName()));
+        assertThat(concertCreated.venue, is(concert.getVenue()));
+        assertThat(concertCreated.numSections, is((short) seating.size()));
 
         int i = 0;
         for (Entry<Section, Seating> entry : seating.entrySet()) {
-            assertThat(concertCreated.sections[i].sectionId.get(), is(entry.getKey().getId()));
-            assertThat(concertCreated.sections[i].seats.get(), is(entry.getValue().getAvailableSeats()));
-            assertThat(concertCreated.sections[i].price.get(), is(entry.getKey().getPrice()));
+            assertThat(concertCreated.sections.get(i).sectionId, is(entry.getKey().getId()));
+            assertThat(concertCreated.sections.get(i).seats, is(entry.getValue().getAvailableSeats()));
+            assertThat(concertCreated.sections.get(i).price, is(entry.getKey().getPrice()));
             i++;
         }
     }

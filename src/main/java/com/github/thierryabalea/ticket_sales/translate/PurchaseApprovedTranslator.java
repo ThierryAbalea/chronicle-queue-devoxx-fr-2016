@@ -7,11 +7,15 @@ import com.github.thierryabalea.ticket_sales.api.TicketPurchase;
 
 public class PurchaseApprovedTranslator {
     public static void translateTo(Message message, long sequence, TicketPurchase ticketPurchase) {
-        message.type.set(EventType.ALLOCATION_APPROVED);
-        AllocationApproved allocationApproved = message.event.asAllocationApproved;
 
-        allocationApproved.accountId.set(ticketPurchase.accountId.get());
-        allocationApproved.requestId.set(ticketPurchase.requestId.get());
-        allocationApproved.numSeats.set(ticketPurchase.numSeats.get());
+        AllocationApproved allocationApproved = new AllocationApproved(
+                ticketPurchase.accountId,
+                ticketPurchase.requestId,
+                ticketPurchase.numSeats
+        );
+
+        message.type = EventType.ALLOCATION_APPROVED;
+        message.event = allocationApproved;
+
     }
 }

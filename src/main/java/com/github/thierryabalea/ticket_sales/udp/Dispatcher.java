@@ -1,7 +1,9 @@
 package com.github.thierryabalea.ticket_sales.udp;
 
+import com.github.thierryabalea.ticket_sales.api.ConcertCreated;
 import com.github.thierryabalea.ticket_sales.api.EventType;
 import com.github.thierryabalea.ticket_sales.api.Message;
+import com.github.thierryabalea.ticket_sales.api.TicketPurchase;
 import com.github.thierryabalea.ticket_sales.domain.ConcertService;
 
 public class Dispatcher {
@@ -12,15 +14,15 @@ public class Dispatcher {
     }
 
     public void onEvent(Message message, long sequence, boolean endOfBatch) {
-        EventType type = (EventType) message.type.get();
+        EventType type = message.type;
 
         switch (type) {
             case CONCERT_CREATED:
-                service.on(message.event.asConcertCreated);
+                service.on((ConcertCreated) message.event);
                 break;
 
             case TICKET_PURCHASE:
-                service.on(message.event.asTicketPurchase);
+                service.on((TicketPurchase) message.event);
                 break;
         }
     }

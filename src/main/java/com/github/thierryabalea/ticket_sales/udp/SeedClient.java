@@ -3,119 +3,62 @@ package com.github.thierryabalea.ticket_sales.udp;
 import com.github.thierryabalea.ticket_sales.api.ConcertCreated;
 import com.github.thierryabalea.ticket_sales.api.EventType;
 import com.github.thierryabalea.ticket_sales.api.Message;
+import com.github.thierryabalea.ticket_sales.api.SectionSeating;
 
-public class SeedClient
-{
-    public static void main(String[] args) throws Exception
-    {
+import java.util.Arrays;
+
+public class SeedClient {
+    public static void main(String[] args) throws Exception {
         UdpEventHandler udpEventHandler = new UdpEventHandler("localhost", ConcertServiceMain.SERVER_PORT);
-        
         {
-            Message m1 = new Message();
-            
             long concertId = 1L;
-            m1.type.set(EventType.CONCERT_CREATED);
-            ConcertCreated concertCreated = m1.event.asConcertCreated;
-            concertCreated.concertId.set(concertId);
-            concertCreated.name.set("Red Hot Chili Peppers");
-            concertCreated.venue.set("Albert Hall");
-            concertCreated.numSections.set((short) 8);
-            
-            concertCreated.sections[0].sectionId.set(1);
-            concertCreated.sections[0].name.set("Section A");
-            concertCreated.sections[0].seats.set(Integer.MAX_VALUE);
-            concertCreated.sections[0].price.set(58.50F);
-            
-            concertCreated.sections[1].sectionId.set(2);
-            concertCreated.sections[1].name.set("Section B");
-            concertCreated.sections[1].seats.set(Integer.MAX_VALUE);
-            concertCreated.sections[1].price.set(63.50F);
-            
-            concertCreated.sections[2].sectionId.set(3);
-            concertCreated.sections[2].name.set("Section C");
-            concertCreated.sections[2].seats.set(Integer.MAX_VALUE);
-            concertCreated.sections[2].price.set(45.50F);
-            
-            concertCreated.sections[3].sectionId.set(4);
-            concertCreated.sections[3].name.set("Section D");
-            concertCreated.sections[3].seats.set(Integer.MAX_VALUE);
-            concertCreated.sections[3].price.set(67.50F);
-            
-            concertCreated.sections[4].sectionId.set(5);
-            concertCreated.sections[4].name.set("Section E");
-            concertCreated.sections[4].seats.set(Integer.MAX_VALUE);
-            concertCreated.sections[4].price.set(38.00F);
-            
-            concertCreated.sections[5].sectionId.set(6);
-            concertCreated.sections[5].name.set("Section F");
-            concertCreated.sections[5].seats.set(Integer.MAX_VALUE);
-            concertCreated.sections[5].price.set(66.55F);
-            
-            concertCreated.sections[6].sectionId.set(7);
-            concertCreated.sections[6].name.set("Section G");
-            concertCreated.sections[6].seats.set(Integer.MAX_VALUE);
-            concertCreated.sections[6].price.set(31.95F);
-            
-            concertCreated.sections[7].sectionId.set(8);
-            concertCreated.sections[7].name.set("Section H");
-            concertCreated.sections[7].seats.set(Integer.MAX_VALUE);
-            concertCreated.sections[7].price.set(78.89F);
-            
+            ConcertCreated concertCreated = new ConcertCreated(
+                    concertId,
+                    0,
+                    "Red Hot Chili Peppers",
+                    "Albert Hall",
+                    (short) 8,
+                    Arrays.asList(
+                            new SectionSeating(1, "Section A", 58.50F, Integer.MAX_VALUE),
+                            new SectionSeating(2, "Section B", 63.50F, Integer.MAX_VALUE),
+                            new SectionSeating(3, "Section C", 45.50F, Integer.MAX_VALUE),
+                            new SectionSeating(4, "Section D", 67.50F, Integer.MAX_VALUE),
+                            new SectionSeating(5, "Section E", 38.00F, Integer.MAX_VALUE),
+                            new SectionSeating(6, "Section F", 31.95F, Integer.MAX_VALUE),
+                            new SectionSeating(7, "Section G", 58.50F, Integer.MAX_VALUE),
+                            new SectionSeating(8, "Section H", 78.89F, Integer.MAX_VALUE))
+            );
+
+            Message m1 = new Message();
+            m1.type = EventType.CONCERT_CREATED;
+            m1.event = concertCreated;
             udpEventHandler.onEvent(m1, 0, true);
         }
-        
+
         {
-            Message m1 = new Message();
-            
             long concertId = 2L;
-            m1.type.set(EventType.CONCERT_CREATED);
-            ConcertCreated concertCreated = m1.event.asConcertCreated;
-            concertCreated.concertId.set(concertId);
-            concertCreated.name.set("Gomez");
-            concertCreated.venue.set("Wembley Park");
-            concertCreated.numSections.set((short) 8);
-            
-            concertCreated.sections[0].sectionId.set(1);
-            concertCreated.sections[0].name.set("Section A");
-            concertCreated.sections[0].seats.set(Integer.MAX_VALUE);
-            concertCreated.sections[0].price.set(58.50F);
-            
-            concertCreated.sections[1].sectionId.set(2);
-            concertCreated.sections[1].name.set("Section B");
-            concertCreated.sections[1].seats.set(Integer.MAX_VALUE);
-            concertCreated.sections[1].price.set(63.50F);
-            
-            concertCreated.sections[2].sectionId.set(3);
-            concertCreated.sections[2].name.set("Section C");
-            concertCreated.sections[2].seats.set(Integer.MAX_VALUE);
-            concertCreated.sections[2].price.set(45.50F);
-            
-            concertCreated.sections[3].sectionId.set(4);
-            concertCreated.sections[3].name.set("Section D");
-            concertCreated.sections[3].seats.set(Integer.MAX_VALUE);
-            concertCreated.sections[3].price.set(67.50F);
-            
-            concertCreated.sections[4].sectionId.set(5);
-            concertCreated.sections[4].name.set("Section E");
-            concertCreated.sections[4].seats.set(Integer.MAX_VALUE);
-            concertCreated.sections[4].price.set(38.00F);
-            
-            concertCreated.sections[5].sectionId.set(6);
-            concertCreated.sections[5].name.set("Section F");
-            concertCreated.sections[5].seats.set(Integer.MAX_VALUE);
-            concertCreated.sections[5].price.set(66.55F);
-            
-            concertCreated.sections[6].sectionId.set(7);
-            concertCreated.sections[6].name.set("Section G");
-            concertCreated.sections[6].seats.set(Integer.MAX_VALUE);
-            concertCreated.sections[6].price.set(31.95F);
-            
-            concertCreated.sections[7].sectionId.set(8);
-            concertCreated.sections[7].name.set("Section H");
-            concertCreated.sections[7].seats.set(Integer.MAX_VALUE);
-            concertCreated.sections[7].price.set(78.89F);
-            
+            ConcertCreated concertCreated = new ConcertCreated(
+                    concertId,
+                    0,
+                    "Gomez",
+                    "Wembley Park",
+                    (short) 8,
+                    Arrays.asList(
+                            new SectionSeating(1, "Section A", 58.50F, Integer.MAX_VALUE),
+                            new SectionSeating(2, "Section B", 63.50F, Integer.MAX_VALUE),
+                            new SectionSeating(3, "Section C", 45.50F, Integer.MAX_VALUE),
+                            new SectionSeating(4, "Section D", 67.50F, Integer.MAX_VALUE),
+                            new SectionSeating(5, "Section E", 38.00F, Integer.MAX_VALUE),
+                            new SectionSeating(6, "Section F", 66.55F, Integer.MAX_VALUE),
+                            new SectionSeating(7, "Section G", 31.95F, Integer.MAX_VALUE),
+                            new SectionSeating(8, "Section H", 78.89F, Integer.MAX_VALUE)
+                    )
+            );
+
+            Message m1 = new Message();
+            m1.event =  concertCreated;
+            m1.type = EventType.CONCERT_CREATED;
             udpEventHandler.onEvent(m1, 0, true);
-        }        
+        }
     }
 }

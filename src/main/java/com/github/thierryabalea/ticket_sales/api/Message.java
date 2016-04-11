@@ -1,36 +1,16 @@
 package com.github.thierryabalea.ticket_sales.api;
 
-import java.nio.ByteBuffer;
-
-import javolution.io.Struct;
-
 import com.lmax.disruptor.EventFactory;
+import net.openhft.chronicle.wire.AbstractMarshallable;
 
-public class Message extends Struct
-{
-    public final Enum32<EventType> type  = new Enum32<EventType>(EventType.values());
-    public final TicketingEvent    event = inner(new TicketingEvent());
-    
-    public int getSize(Struct s)
-    {
-        return (this.size() - event.size()) + s.size();
-    }
-    
-    public int getSize()
-    {
-        EventType type = (EventType) this.type.get();
-        return getSize(type.getStruct());
-    }
-    
+public class Message extends AbstractMarshallable {
+    public EventType type;
+    public TicketingEvent event;
+
     @Override
-    public String toString()
-    {
-        return "Message [type=" + type.get() + "]";
+    public String toString() {
+        return "Message [type=" + type + "]";
     }
 
-    public final static EventFactory<Message> FACTORY = () -> {
-        Message message = new Message();
-        message.setByteBuffer(ByteBuffer.allocate(message.size()), 0);
-        return message;
-    };
+    public final static EventFactory<Message> FACTORY = Message::new;
 }

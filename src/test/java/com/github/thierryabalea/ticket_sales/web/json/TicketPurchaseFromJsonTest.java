@@ -25,13 +25,13 @@ public class TicketPurchaseFromJsonTest
         Message message = new Message();
         TicketPurchaseFromJson.translateTo(message, 0, object);
         
-        assertThat(message.type.get(), is((Enum) EventType.TICKET_PURCHASE));
-        TicketPurchase ticketPurchase = message.event.asTicketPurchase;
-        assertThat(ticketPurchase.concertId.get(), is(4000000000L));
-        assertThat(ticketPurchase.sectionId.get(), is(5L));
-        assertThat(ticketPurchase.numSeats.get(), is(2));
-        assertThat(ticketPurchase.accountId.get(), is(3411L));
-        assertThat(ticketPurchase.requestId.get(), is(9123L));
+        assertThat(message.type, is((Enum) EventType.TICKET_PURCHASE));
+        TicketPurchase ticketPurchase = (TicketPurchase) message.event;
+        assertThat(ticketPurchase.concertId, is(4000000000L));
+        assertThat(ticketPurchase.sectionId, is(5L));
+        assertThat(ticketPurchase.numSeats, is(2));
+        assertThat(ticketPurchase.accountId, is(3411L));
+        assertThat(ticketPurchase.requestId, is(9123L));
     }
 
 }

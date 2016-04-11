@@ -2,6 +2,7 @@ package com.github.thierryabalea.ticket_sales.udp;
 
 import com.github.thierryabalea.ticket_sales.api.EventType;
 import com.github.thierryabalea.ticket_sales.api.Message;
+import com.github.thierryabalea.ticket_sales.api.Poll;
 import com.github.thierryabalea.ticket_sales.web.RequestWebServer;
 import com.github.thierryabalea.ticket_sales.web.ResponseWebServer;
 import com.github.thierryabalea.ticket_sales.web.json.TicketPurchaseFromJson;
@@ -73,9 +74,8 @@ public class UdpWebMain {
         ResponseWebServer.PollHandler pollHandler = (accountId, version) -> {
             long next = ringBuffer.next();
             Message message = ringBuffer.get(next);
-            message.type.set(EventType.POLL);
-            message.event.asPoll.accountId.set(accountId);
-            message.event.asPoll.version.set(version);
+            message.type = EventType.POLL;
+            message.event = new Poll(accountId, version);
             ringBuffer.publish(next);
         };
 

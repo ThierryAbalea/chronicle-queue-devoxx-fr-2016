@@ -13,20 +13,21 @@ public class PurchaseApprovedTranslatorTest {
     @Test
     @SuppressWarnings("rawtypes")
     public void shouldTranslate() {
-        TicketPurchase ticketPurchase = new TicketPurchase();
-        ticketPurchase.accountId.set(11L);
-        ticketPurchase.requestId.set(13L);
-        ticketPurchase.numSeats.set(4);
-        ticketPurchase.concertId.set(17L);
-        ticketPurchase.sectionId.set(21L);
+        TicketPurchase ticketPurchase = new TicketPurchase(
+                17L,
+                21L,
+                4,
+                11L,
+                13L
+        );
 
         Message message = new Message();
         PurchaseApprovedTranslator.translateTo(message, 0, ticketPurchase);
 
-        assertThat(message.type.get(), is((Enum) EventType.ALLOCATION_APPROVED));
-        AllocationApproved allocationApproved = message.event.asAllocationApproved;
-        assertThat(allocationApproved.accountId.get(), is(ticketPurchase.accountId.get()));
-        assertThat(allocationApproved.requestId.get(), is(ticketPurchase.requestId.get()));
-        assertThat(allocationApproved.numSeats.get(), is(ticketPurchase.numSeats.get()));
+        assertThat(message.type, is((Enum) EventType.ALLOCATION_APPROVED));
+        AllocationApproved allocationApproved = (AllocationApproved) message.event;
+        assertThat(allocationApproved.accountId, is(ticketPurchase.accountId));
+        assertThat(allocationApproved.requestId, is(ticketPurchase.requestId));
+        assertThat(allocationApproved.numSeats, is(ticketPurchase.numSeats));
     }
 }

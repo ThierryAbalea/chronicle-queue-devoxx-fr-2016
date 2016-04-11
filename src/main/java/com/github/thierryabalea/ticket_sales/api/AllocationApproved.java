@@ -1,10 +1,15 @@
 package com.github.thierryabalea.ticket_sales.api;
 
-import javolution.io.Struct;
+import net.openhft.chronicle.wire.AbstractMarshallable;
 
-public class AllocationApproved extends Struct
-{
-    public final Signed64 accountId = new Signed64();
-    public final Signed64 requestId = new Signed64();
-    public final Signed32 numSeats = new Signed32();
+public class AllocationApproved extends AbstractMarshallable implements TicketingEvent {
+    public final long accountId;
+    public final long requestId;
+    public final int numSeats;
+
+    public AllocationApproved(long accountId, long requestId, int numSeats) {
+        this.accountId = accountId;
+        this.requestId = requestId;
+        this.numSeats = numSeats;
+    }
 }

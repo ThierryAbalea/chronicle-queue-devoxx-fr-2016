@@ -15,21 +15,22 @@ public class PurchaseRejectedTranslatorTest {
     @SuppressWarnings("rawtypes")
     @Test
     public void shouldTranslate() {
-        TicketPurchase ticketPurchase = new TicketPurchase();
-        ticketPurchase.accountId.set(11L);
-        ticketPurchase.requestId.set(13L);
-        ticketPurchase.numSeats.set(4);
-        ticketPurchase.concertId.set(17L);
-        ticketPurchase.sectionId.set(21L);
+        TicketPurchase ticketPurchase = new TicketPurchase(
+                17L,
+                21L,
+                4,
+                11L,
+                13L
+        );
 
         Message message = new Message();
         PurchaseRejectedTranslator.translateTo(message, 0, RejectionReason.NOT_ENOUGH_SEATS, ticketPurchase);
 
-        assertThat(message.type.get(), is((Enum) EventType.ALLOCATION_REJECTED));
+        assertThat(message.type, is((Enum) EventType.ALLOCATION_REJECTED));
 
-        AllocationRejected allocationRejected = message.event.asAllocationRejected;
-        assertThat(allocationRejected.accountId.get(), is(ticketPurchase.accountId.get()));
-        assertThat(allocationRejected.requestId.get(), is(ticketPurchase.requestId.get()));
-        assertThat(allocationRejected.reason.get(), is((Enum) RejectionReason.NOT_ENOUGH_SEATS));
+        AllocationRejected allocationRejected = (AllocationRejected) message.event;
+        assertThat(allocationRejected.accountId, is(ticketPurchase.accountId));
+        assertThat(allocationRejected.requestId, is(ticketPurchase.requestId));
+        assertThat(allocationRejected.reason, is((Enum) RejectionReason.NOT_ENOUGH_SEATS));
     }
 }

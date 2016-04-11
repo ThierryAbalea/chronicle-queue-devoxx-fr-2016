@@ -1,9 +1,13 @@
 package com.github.thierryabalea.ticket_sales.api;
 
-import javolution.io.Struct;
+import net.openhft.chronicle.wire.AbstractMarshallable;
 
-public class Poll extends Struct
-{
-    public final Signed64 accountId = new Signed64();
-    public final Signed64 version   = new Signed64();
+public class Poll extends AbstractMarshallable implements TicketingEvent {
+    public final long accountId;
+    public final long version;
+
+    public Poll(long accountId, long version) {
+        this.accountId = accountId;
+        this.version = version;
+    }
 }

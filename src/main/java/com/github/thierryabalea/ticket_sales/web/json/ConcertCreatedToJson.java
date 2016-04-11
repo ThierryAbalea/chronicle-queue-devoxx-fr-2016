@@ -1,11 +1,10 @@
 package com.github.thierryabalea.ticket_sales.web.json;
 
 import com.github.thierryabalea.ticket_sales.api.ConcertCreated;
-import net.minidev.json.JSONArray;
-import net.minidev.json.JSONObject;
-
 import com.github.thierryabalea.ticket_sales.api.EventType;
 import com.github.thierryabalea.ticket_sales.api.SectionSeating;
+import net.minidev.json.JSONArray;
+import net.minidev.json.JSONObject;
 
 public class ConcertCreatedToJson
 {
@@ -14,24 +13,24 @@ public class ConcertCreatedToJson
     {
         JSONObject json = new JSONObject();
         
-        json.put("concertId", concertCreated.concertId.get());
-        json.put("version",   concertCreated.version.get());
-        json.put("name",      concertCreated.name.get());
-        json.put("venue",     concertCreated.venue.get());
+        json.put("concertId", concertCreated.concertId);
+        json.put("version",   concertCreated.version);
+        json.put("name",      concertCreated.name);
+        json.put("venue",     concertCreated.venue);
         json.put("type",      EventType.CONCERT_CREATED.name());
         
         JSONArray jsonSections = new JSONArray();
         json.put("sections", jsonSections);
         
-        for (int i = 0, n = concertCreated.numSections.get(); i < n; i++)
+        for (int i = 0, n = concertCreated.numSections; i < n; i++)
         {
             JSONObject sectionJson = new JSONObject();
-            SectionSeating section = concertCreated.sections[i];
+            SectionSeating section = concertCreated.sections.get(i);
             
-            sectionJson.put("sectionId", section.sectionId.get());
-            sectionJson.put("name",      section.name.get());
-            sectionJson.put("price",     section.price.get());
-            sectionJson.put("seats",     section.seats.get());
+            sectionJson.put("sectionId", section.sectionId);
+            sectionJson.put("name",      section.name);
+            sectionJson.put("price",     section.price);
+            sectionJson.put("seats",     section.seats);
             
             jsonSections.add(sectionJson);
         }

@@ -1,11 +1,6 @@
 package com.github.thierryabalea.ticket_sales.web;
 
-import com.github.thierryabalea.ticket_sales.api.AllocationApproved;
-import com.github.thierryabalea.ticket_sales.api.AllocationRejected;
-import com.github.thierryabalea.ticket_sales.api.ConcertCreated;
-import com.github.thierryabalea.ticket_sales.api.EventType;
-import com.github.thierryabalea.ticket_sales.api.Message;
-import com.github.thierryabalea.ticket_sales.api.SectionUpdated;
+import com.github.thierryabalea.ticket_sales.api.*;
 import com.github.thierryabalea.ticket_sales.web.json.AllocationApprovedToJson;
 import com.github.thierryabalea.ticket_sales.web.json.AllocationRejectedToJson;
 import com.github.thierryabalea.ticket_sales.web.json.ConcertCreatedToJson;
@@ -58,36 +53,37 @@ public class ResponseWebServer {
     }
 
     public void onEvent(Message message, long sequence, boolean endOfBatch) throws Exception {
-        EventType type = (EventType) message.type.get();
+        EventType type = (EventType) message.type;
 
         switch (type) {
             case CONCERT_CREATED:
-                final ConcertCreated concertCreated = message.event.asConcertCreated;
+                final ConcertCreated concertCreated = (ConcertCreated) message.event;
                 JSONObject concertCreatedAsJson = concertCreatedToJson.toJson(concertCreated);
-                concertsByConcertId.put(concertCreated.concertId.get(), concertCreatedAsJson);
+                concertsByConcertId.put(concertCreated.concertId, concertCreatedAsJson);
                 enqueueEvent(concertCreatedAsJson);
                 break;
 
             case SECTION_UPDATED:
-                final SectionUpdated sectionUpdated = message.event.asSectionUpdated;
+                final SectionUpdated sectionUpdated = (SectionUpdated) message.event;
                 JSONObject sectionUpdatedAsJson = sectionUpdatedToJson.toJson(sectionUpdated);
                 sectionUpdatedByKey.put(sectionKeyFrom(sectionUpdated), sectionUpdatedAsJson);
                 enqueueEvent(sectionUpdatedAsJson);
                 break;
 
             case ALLOCATION_APPROVED:
-                final AllocationApproved approval = message.event.asAllocationApproved;
-                enqueueEvent(approval.accountId.get(), allocationApprovedToJson.toJson(approval));
+                final AllocationApproved approval = (AllocationApproved) message.event;
+                enqueueEvent(approval.accountId, allocationApprovedToJson.toJson(approval));
                 break;
 
             case ALLOCATION_REJECTED:
-                final AllocationRejected rejection = message.event.asAllocationRejected;
-                enqueueEvent(rejection.accountId.get(), allocationRejectedToJson.toJson(rejection));
+                final AllocationRejected rejection = (AllocationRejected) message.event;
+                enqueueEvent(rejection.accountId, allocationRejectedToJson.toJson(rejection));
                 break;
 
             case POLL:
-                long accountId = message.event.asPoll.accountId.get();
-                long version = message.event.asPoll.version.get();
+                Poll poll = (Poll) message.event;
+                long accountId =poll.accountId;
+                long version = poll.version;
                 JSONArray events = eventsByAccountId.get(accountId);
 
                 events = getUpdatedValues(events, concertsByConcertId.values(), version);
@@ -167,7 +163,7 @@ public class ResponseWebServer {
     }
 
     private SectionKey sectionKeyFrom(final SectionUpdated sectionUpdated) {
-        return new SectionKey(sectionUpdated.concertId.get(), sectionUpdated.sectionId.get());
+        return new SectionKey(sectionUpdated.concertId, sectionUpdated.sectionId);
     }
 
     private static class SectionKey {

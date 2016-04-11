@@ -1,13 +1,23 @@
 package com.github.thierryabalea.ticket_sales.api;
 
-import javolution.io.Struct;
+import net.openhft.chronicle.wire.AbstractMarshallable;
 
-public class ConcertCreated extends Struct
-{
-    public final Signed64         concertId   = new Signed64();
-    public final Signed64         version     = new Signed64();
-    public final UTF8String       name        = new UTF8String(32);
-    public final UTF8String       venue       = new UTF8String(32);
-    public final Signed16         numSections = new Signed16();
-    public final SectionSeating[] sections    = array(new SectionSeating[10]);
+import java.util.List;
+
+public class ConcertCreated extends AbstractMarshallable implements TicketingEvent {
+    public final long concertId;
+    public final long version;
+    public final String name;
+    public final String venue;
+    public final short numSections;
+    public final List<SectionSeating> sections;
+
+    public ConcertCreated(long concertId, long version, String name, String venue, short numSections, List<SectionSeating> sections) {
+        this.concertId = concertId;
+        this.version = version;
+        this.name = name;
+        this.venue = venue;
+        this.numSections = numSections;
+        this.sections = sections;
+    }
 }

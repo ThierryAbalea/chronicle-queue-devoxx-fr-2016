@@ -1,14 +1,17 @@
 package com.github.thierryabalea.ticket_sales.udp;
 
+import com.github.thierryabalea.ticket_sales.api.Message;
+import com.lmax.disruptor.RingBuffer;
+import net.openhft.chronicle.bytes.Bytes;
+import net.openhft.chronicle.wire.TextWire;
+import net.openhft.chronicle.wire.Wire;
+
 import java.io.IOException;
 import java.net.DatagramSocket;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
-
-import com.github.thierryabalea.ticket_sales.api.Message;
-import com.lmax.disruptor.RingBuffer;
 
 public class UdpDataSource implements Runnable
 {
@@ -33,7 +36,7 @@ public class UdpDataSource implements Runnable
 
     public void run()
     {
-        ByteBuffer buffer = ByteBuffer.allocate(1400);
+        ByteBuffer buffer = ByteBuffer.allocate(14000);
         ByteBuffer slice = buffer.slice();
         
         Thread t = Thread.currentThread();
@@ -56,23 +59,18 @@ public class UdpDataSource implements Runnable
                     
                     long sequence = ringBuffer.next();
                     Message message = ringBuffer.get(sequence);
-                    try
-                    {
-                        if (message.getByteBuffer().remaining() < slice.remaining())
-                        {
-                            System.out.println(message.getByteBuffer());
-                        }
-                        message.getByteBuffer().clear();
-                        message.getByteBuffer().put(slice);
-                    }
-                    catch (RuntimeException e)
-                    {
-                        System.out.println(buffer);
-                        System.out.println(slice);
-                        System.out.println(message.getByteBuffer());
-                        
-                        throw e;
-                    }
+
+                   // Bytes<ByteBuffer> byteBuffer = Bytes.elasticByteBuffer();
+
+                    //ByteBuffer buffer1 = ByteBuffer.allocate(20000);
+                    //buffer1.put(slice);
+                    Wire wire = new TextWire(Bytes.wrapForRead(slice));
+                    slice.position(slice.position() + length);
+
+                    message.readMarshallable(wire);
+                  //  wire.getValueIn().marshallable(message);
+                 //   System.out.println(byteBuffer);
+
                     ringBuffer.publish(sequence);
                     
                     slice.limit(buffer.limit());

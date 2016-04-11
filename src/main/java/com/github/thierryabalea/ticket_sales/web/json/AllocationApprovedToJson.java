@@ -11,9 +11,9 @@ public class AllocationApprovedToJson
     {
         JSONObject json = new JSONObject();
         
-        json.put("accountId", allocationApproved.accountId.get());
-        json.put("requestId", allocationApproved.requestId.get());
-        json.put("numSeats", allocationApproved.numSeats.get());
+        json.put("accountId", allocationApproved.accountId);
+        json.put("requestId", allocationApproved.requestId);
+        json.put("numSeats", allocationApproved.numSeats);
         json.put("type", EventType.ALLOCATION_APPROVED.name());
         
         return json;

@@ -11,9 +11,9 @@ public class AllocationRejectedToJson
     {
         JSONObject json = new JSONObject();
         
-        json.put("accountId", allocationRejected.accountId.get());
-        json.put("requestId", allocationRejected.requestId.get());
-        json.put("reason",    allocationRejected.reason.get());
+        json.put("accountId", allocationRejected.accountId);
+        json.put("requestId", allocationRejected.requestId);
+        json.put("reason",    allocationRejected.reason);
         json.put("type",      EventType.ALLOCATION_REJECTED.name());
         
         return json;

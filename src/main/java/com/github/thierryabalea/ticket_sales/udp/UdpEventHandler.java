@@ -1,12 +1,16 @@
 package com.github.thierryabalea.ticket_sales.udp;
 
+import com.github.thierryabalea.ticket_sales.api.Message;
+import com.lmax.disruptor.EventHandler;
+import javolution.io.Struct;
+import net.openhft.chronicle.bytes.Bytes;
+import net.openhft.chronicle.wire.TextWire;
+import net.openhft.chronicle.wire.Wire;
+
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
-
-import com.lmax.disruptor.EventHandler;
-import com.github.thierryabalea.ticket_sales.api.Message;
 
 public class UdpEventHandler implements EventHandler<Message>
 {
@@ -29,13 +33,46 @@ public class UdpEventHandler implements EventHandler<Message>
     
     public void onEvent(Message message, long sequence, boolean endOfBatch) throws Exception
     {
-        int size = message.getSize();
+
+        Bytes<ByteBuffer> byteBuffer = Bytes.elasticByteBuffer();
+        Wire wire = new TextWire(byteBuffer);
+
+        wire.getValueOut().object(message);
+        System.out.println(byteBuffer);
+
+        int size = byteBuffer.length();
         
         if (buffer.remaining() < size + 4)
         {
             flush();
         }
         
+        buffer.putInt(size);
+       // ByteBuffer messageBuffer = message.getByteBuffer();
+      //  int messagePosition = message.getByteBufferPosition();
+
+      //  messageBuffer.position(messagePosition);
+      //  messageBuffer.limit(messagePosition + size);
+     //   buffer.put(messageBuffer);
+        buffer.put(ByteBuffer.wrap(byteBuffer.toByteArray()));
+        byteBuffer.clear();
+      //  messageBuffer.clear();
+        
+        if (endOfBatch)
+        {
+            flush();
+        }
+    }
+
+    public void onEventOld(Struct message, long sequence, boolean endOfBatch) throws Exception
+    {
+        int size = 0; // message.getSize();
+
+        if (buffer.remaining() < size + 4)
+        {
+            flush();
+        }
+
         buffer.putInt(size);
         ByteBuffer messageBuffer = message.getByteBuffer();
         int messagePosition = message.getByteBufferPosition();
@@ -44,7 +81,7 @@ public class UdpEventHandler implements EventHandler<Message>
         messageBuffer.limit(messagePosition + size);
         buffer.put(messageBuffer);
         messageBuffer.clear();
-        
+
         if (endOfBatch)
         {
             flush();
