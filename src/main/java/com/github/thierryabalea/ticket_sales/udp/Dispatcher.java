@@ -3,12 +3,12 @@ package com.github.thierryabalea.ticket_sales.udp;
 import com.github.thierryabalea.ticket_sales.api.ConcertCreated;
 import com.github.thierryabalea.ticket_sales.api.EventType;
 import com.github.thierryabalea.ticket_sales.api.TicketPurchase;
-import com.github.thierryabalea.ticket_sales.domain.ConcertService;
+import com.github.thierryabalea.ticket_sales.domain.ConcertServiceManager;
 
 public class Dispatcher {
-    private final ConcertService service;
+    private final ConcertServiceManager service;
 
-    public Dispatcher(ConcertService service) {
+    public Dispatcher(ConcertServiceManager service) {
         this.service = service;
     }
 
@@ -17,11 +17,11 @@ public class Dispatcher {
 
         switch (type) {
             case CONCERT_CREATED:
-                service.on((ConcertCreated) message.event);
+                service.onConcertCreated((ConcertCreated) message.event);
                 break;
 
             case TICKET_PURCHASE:
-                service.on((TicketPurchase) message.event);
+                service.onTicketPurchase((TicketPurchase) message.event);
                 break;
         }
     }

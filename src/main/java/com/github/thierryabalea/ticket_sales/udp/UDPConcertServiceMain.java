@@ -1,6 +1,6 @@
 package com.github.thierryabalea.ticket_sales.udp;
 
-import com.github.thierryabalea.ticket_sales.domain.ConcertService;
+import com.github.thierryabalea.ticket_sales.domain.ConcertServiceManager;
 import com.lmax.disruptor.BlockingWaitStrategy;
 import com.lmax.disruptor.RingBuffer;
 import com.lmax.disruptor.dsl.Disruptor;
@@ -38,8 +38,8 @@ public class UDPConcertServiceMain {
         Journaller journaller = new Journaller(new File("/tmp"));
 
         Publisher publisher = new Publisher(outboundBuffer);
-        ConcertService concertService = new ConcertService(publisher);
-        Dispatcher dispatcher = new Dispatcher(concertService);
+        ConcertServiceManager concertServiceManager = new ConcertServiceManager(publisher);
+        Dispatcher dispatcher = new Dispatcher(concertServiceManager);
 
         //noinspection unchecked
         inboundDisruptor.handleEventsWith(journaller).then(dispatcher::onEvent);
