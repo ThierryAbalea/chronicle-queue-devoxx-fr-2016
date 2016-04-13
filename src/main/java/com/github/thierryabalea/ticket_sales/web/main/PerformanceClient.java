@@ -82,7 +82,9 @@ public class PerformanceClient implements Runnable
                     URL responseUrl = new URL(baseUrl + version);
                     
                     cn = (HttpURLConnection) responseUrl.openConnection();
-                    
+                    cn.setRequestMethod("POST");
+                    cn.setDoOutput(true);
+
                     InputStream in = cn.getInputStream();
                     
                     JSONArray response = (JSONArray) parser.parse(new InputStreamReader(in));
