@@ -38,8 +38,8 @@ public class ChronicleWebMain {
             RequestWebServer requestWebServer = new RequestWebServer(requestHandler);
             requestWebServer.init();
         }
-        try (ChronicleQueue queue = SingleChronicleQueueBuilder.binary(concertServiceListenerQueue).build()) {
 
+        try (ChronicleQueue queue = SingleChronicleQueueBuilder.binary(concertServiceListenerQueue).build()) {
             MethodReader reader = queue.createTailer().afterLastWritten(queue).methodReader(responseWebServer);
             Thread controller = new ControllerThread(reader);
             controller.run();
