@@ -13,8 +13,6 @@ import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
-import net.minidev.json.JSONValue;
-import org.rapidoid.commons.MediaType;
 import org.rapidoid.http.Req;
 import org.rapidoid.http.fast.On;
 
@@ -106,13 +104,7 @@ public class ResponseWebServer implements ConcertServiceListener {
         Req req = requestsByAccount.remove(accountId);
 
         if (null != req) {
-            StringBuilder jsonResponse = new StringBuilder();
-            try {
-                JSONValue.writeJSONString(events, jsonResponse);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-            req.response().contentType(MediaType.JSON_UTF_8).content(jsonResponse);
+            req.response().json(events);
             req.done();
 
             eventsByAccountId.remove(accountId);
