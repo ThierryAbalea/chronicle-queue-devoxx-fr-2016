@@ -25,7 +25,10 @@ public class ChronicleWebMain {
         String concertServiceListenerQueue = format("%s/%s", OS.TARGET, "concertServiceListenerQueue");
 
         try (ChronicleQueue queue = SingleChronicleQueueBuilder.binary(concertServiceQueue).build()) {
-            ConcertService concertService = queue.createAppender().methodWriter(ConcertService.class);
+            ConcertService concertService = queue.createAppender()
+                    .methodWriterBuilder(ConcertService.class)
+                    .recordHistory(true)
+                    .get();
 
             RequestWebServer.JsonRequestHandler requestHandler = request -> {
                 TicketPurchase ticketPurchase = TicketPurchaseFromJson.fromJson(request);
@@ -37,7 +40,7 @@ public class ChronicleWebMain {
         }
         try (ChronicleQueue queue = SingleChronicleQueueBuilder.binary(concertServiceListenerQueue).build()) {
 
-            MethodReader reader = queue.createTailer().methodReader(responseWebServer);
+            MethodReader reader = queue.createTailer().afterLastWritten(queue).methodReader(responseWebServer);
             Thread controller = new ControllerThread(reader);
             controller.run();
         }

@@ -19,12 +19,15 @@ public class ChronicleConcertServiceMain {
         ConcertService concertService;
 
         try (ChronicleQueue queue = SingleChronicleQueueBuilder.binary(concertServiceListenerQueue).build()) {
-            ConcertServiceListener serviceListener = queue.createAppender().methodWriter(ConcertServiceListener.class);
+            ConcertServiceListener serviceListener = queue.createAppender()
+                    .methodWriterBuilder(ConcertServiceListener.class)
+                    .recordHistory(true)
+                    .get();
             concertService = new ConcertServiceManager(serviceListener);
         }
 
         try (ChronicleQueue queue = SingleChronicleQueueBuilder.binary(concertServiceQueue).build()) {
-            MethodReader reader = queue.createTailer().methodReader(concertService);
+            MethodReader reader = queue.createTailer().afterLastWritten(queue).methodReader(concertService);
             Thread controller = new ControllerThread(reader);
             controller.run();
         }

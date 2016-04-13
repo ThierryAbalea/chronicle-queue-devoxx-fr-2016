@@ -14,7 +14,10 @@ public class SeedClient {
         String concertServiceQueue = format("%s/%s", OS.TARGET, "concertServiceQueue");
 
         try (ChronicleQueue queue = SingleChronicleQueueBuilder.binary(concertServiceQueue).build()) {
-            ConcertService concertService = queue.createAppender().methodWriter(ConcertService.class);
+            ConcertService concertService = queue.createAppender()
+                    .methodWriterBuilder(ConcertService.class)
+                    .recordHistory(true)
+                    .get();
             createConcerts().stream().forEachOrdered(concertService::onConcertCreated);
         }
     }
