@@ -8,7 +8,7 @@ import java.util.List;
 import static com.google.common.collect.Lists.newArrayList;
 import static java.util.Arrays.asList;
 
-public class CreateConcertsFactory {
+public class ConcertFactory {
 
     public static List<ConcertCreated> createConcerts() {
         ConcertCreated concertCreated1 = new ConcertCreated(
