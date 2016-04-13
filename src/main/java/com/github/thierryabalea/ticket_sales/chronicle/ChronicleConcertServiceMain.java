@@ -7,14 +7,12 @@ import net.openhft.chronicle.core.OS;
 import net.openhft.chronicle.queue.ChronicleQueue;
 import net.openhft.chronicle.queue.MethodReader;
 import net.openhft.chronicle.queue.impl.single.SingleChronicleQueueBuilder;
-import org.rapidoid.http.fast.On;
 
 import static java.lang.String.format;
 
 public class ChronicleConcertServiceMain {
-    public static void main(String[] args) throws Exception {
-        On.port(7070);
 
+    public static void main(String[] args) throws Exception {
         String concertServiceQueue = format("%s/%s", OS.TARGET, "concertServiceQueue");
         String concertServiceListenerQueue = format("%s/%s", OS.TARGET, "concertServiceListenerQueue");
 
