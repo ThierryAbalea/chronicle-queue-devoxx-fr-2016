@@ -6,6 +6,6 @@ import com.github.thierryabalea.ticket_sales.api.service.CommandHandler;
 public class SeedClient {
 
     public static void createConcerts(CommandHandler commandHandler) throws Exception {
-        ConcertFactory.createConcerts().stream().forEachOrdered(commandHandler::onConcertCreated);
+        ConcertFactory.createConcerts().stream().forEachOrdered(commandHandler::onCreateConcert);
     }
 }

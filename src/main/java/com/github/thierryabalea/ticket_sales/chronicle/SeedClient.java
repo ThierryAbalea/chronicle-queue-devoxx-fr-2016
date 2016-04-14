@@ -11,14 +11,14 @@ import static java.lang.String.format;
 public class SeedClient {
 
     public static void main(String[] args) throws Exception {
-        String concertCreatedQueue = format("%s/%s", OS.TARGET, "concertCreatedQueue");
+        String createConcertQueue = format("%s/%s", OS.TARGET, "createConcertQueue");
 
-        try (ChronicleQueue queue = SingleChronicleQueueBuilder.binary(concertCreatedQueue).build()) {
+        try (ChronicleQueue queue = SingleChronicleQueueBuilder.binary(createConcertQueue).build()) {
             CommandHandler commandHandler = queue.createAppender()
                     .methodWriterBuilder(CommandHandler.class)
                     .recordHistory(true)
                     .get();
-            createConcerts().stream().forEachOrdered(commandHandler::onConcertCreated);
+            createConcerts().stream().forEachOrdered(commandHandler::onCreateConcert);
         }
     }
 }

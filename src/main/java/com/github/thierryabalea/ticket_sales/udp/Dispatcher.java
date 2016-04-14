@@ -1,6 +1,6 @@
 package com.github.thierryabalea.ticket_sales.udp;
 
-import com.github.thierryabalea.ticket_sales.api.ConcertCreated;
+import com.github.thierryabalea.ticket_sales.api.CreateConcert;
 import com.github.thierryabalea.ticket_sales.api.EventType;
 import com.github.thierryabalea.ticket_sales.api.TicketPurchase;
 import com.github.thierryabalea.ticket_sales.domain.ConcertService;
@@ -16,8 +16,8 @@ public class Dispatcher {
         EventType type = message.type;
 
         switch (type) {
-            case CONCERT_CREATED:
-                service.onConcertCreated((ConcertCreated) message.event);
+            case CREATE_CONCERT:
+                service.onCreateConcert((CreateConcert) message.event);
                 break;
 
             case TICKET_PURCHASE:

@@ -18,7 +18,7 @@ public class ChronicleConcertServiceMain {
     public static void main(String[] args) throws Exception {
         String commandHandlerQueue = format("%s/%s", OS.TARGET, "commandHandlerQueue");
         String eventHandlerQueue = format("%s/%s", OS.TARGET, "eventHandlerQueue");
-        String concertCreatedQueue = format("%s/%s", OS.TARGET, "concertCreatedQueue");
+        String createConcertQueue = format("%s/%s", OS.TARGET, "createConcertQueue");
 
         CommandHandler commandHandler;
 
@@ -37,11 +37,11 @@ public class ChronicleConcertServiceMain {
             commandHandlerReader = queue.createTailer().afterLastWritten(queue).methodReader(commandHandler);
         }
 
-        MethodReader concertCreatedReader;
-        try (ChronicleQueue queue = SingleChronicleQueueBuilder.binary(concertCreatedQueue).build()) {
-            concertCreatedReader = queue.createTailer().afterLastWritten(queue).methodReader(commandHandler);
+        MethodReader createConcertReader;
+        try (ChronicleQueue queue = SingleChronicleQueueBuilder.binary(createConcertQueue).build()) {
+            createConcertReader = queue.createTailer().afterLastWritten(queue).methodReader(commandHandler);
         }
 
-        executorService.execute(new ConcertServiceControllerThread(commandHandlerReader, concertCreatedReader));
+        executorService.execute(new ConcertServiceControllerThread(commandHandlerReader, createConcertReader));
     }
 }

@@ -9,7 +9,7 @@ public class EventClient {
         UdpEventHandler udpEventHandler = new UdpEventHandler("localhost", UDPConcertServiceMain.SERVER_PORT);
         long concertId = System.currentTimeMillis();
 
-        ConcertCreated concertCreated = new ConcertCreated(
+        CreateConcert createConcert = new CreateConcert(
                 concertId,
                 0,
                 "Chilis",
@@ -20,7 +20,7 @@ public class EventClient {
 
         Message m1 = new Message();
         m1.type = EventType.CONCERT_CREATED;
-        m1.event = concertCreated;
+        m1.event = createConcert;
         udpEventHandler.onEvent(m1, 0, true);
 
         for (int i = 0; i < 1; i++) {

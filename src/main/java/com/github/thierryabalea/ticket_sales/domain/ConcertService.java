@@ -9,6 +9,7 @@ import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
+import java.util.List;
 
 import static com.github.thierryabalea.ticket_sales.api.RejectionReason.CONCERT_DOES_NOT_EXIST;
 import static com.github.thierryabalea.ticket_sales.api.RejectionReason.NOT_ENOUGH_SEATS;
@@ -24,11 +25,11 @@ public class ConcertService implements Concert.Observer, CommandHandler {
     }
 
     @Override
-    public void onConcertCreated(ConcertCreated eventCreated) {
+    public void onCreateConcert(CreateConcert createConcert) {
         HashMap<Section, Seating> seatingBySection = Maps.newHashMap();
 
-        for (int i = 0, n = eventCreated.numSections; i < n; i++) {
-            SectionSeating sectionSeating = eventCreated.sections.get(i);
+        for (int i = 0, n = createConcert.numSections; i < n; i++) {
+            SectionSeating sectionSeating = createConcert.sections.get(i);
             Section section = new Section(sectionSeating.sectionId,
                     sectionSeating.name,
                     sectionSeating.price);
@@ -37,13 +38,14 @@ public class ConcertService implements Concert.Observer, CommandHandler {
             seatingBySection.put(section, seating);
         }
 
-        Concert concert = new Concert(eventCreated.concertId,
-                eventCreated.name,
-                eventCreated.venue,
+        Concert concert = new Concert(createConcert.concertId,
+                createConcert.name,
+                createConcert.venue,
                 seatingBySection);
         concertRepository.put(concert.getId(), concert);
         concert.addObserver(this);
-        eventHandler.onConcertAvailable(eventCreated);
+        ConcertCreated concertCreated = buildConcertCreated(createConcert);
+        eventHandler.onConcertAvailable(concertCreated);
     }
 
     @Override
@@ -70,6 +72,16 @@ public class ConcertService implements Concert.Observer, CommandHandler {
 
         AllocationApproved allocationApproved = buildAllocationApproved(ticketPurchase);
         eventHandler.onAllocationApproved(allocationApproved);
+    }
+
+    private ConcertCreated buildConcertCreated(CreateConcert createConcert) {
+        return new ConcertCreated(
+                createConcert.concertId,
+                createConcert.version,
+                createConcert.name,
+                createConcert.venue,
+                createConcert.numSections,
+                createConcert.sections);
     }
 
     private void reject(TicketPurchase ticketPurchase, RejectionReason reason) {

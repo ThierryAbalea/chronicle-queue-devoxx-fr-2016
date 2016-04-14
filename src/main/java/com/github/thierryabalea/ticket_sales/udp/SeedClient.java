@@ -8,10 +8,10 @@ import static com.google.common.base.Throwables.propagate;
 public class SeedClient {
     public static void main(String[] args) throws Exception {
 
-        createConcerts().stream().forEachOrdered(concertCreated -> {
+        createConcerts().stream().forEachOrdered(createConcert -> {
             Message message = new Message();
-            message.type = EventType.CONCERT_CREATED;
-            message.event = concertCreated;
+            message.type = EventType.CREATE_CONCERT;
+            message.event = createConcert;
             handleEvent(message);
         });
     }

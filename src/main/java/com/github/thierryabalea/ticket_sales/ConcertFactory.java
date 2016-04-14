@@ -1,6 +1,6 @@
 package com.github.thierryabalea.ticket_sales;
 
-import com.github.thierryabalea.ticket_sales.api.ConcertCreated;
+import com.github.thierryabalea.ticket_sales.api.CreateConcert;
 import com.github.thierryabalea.ticket_sales.api.SectionSeating;
 
 import java.util.List;
@@ -10,8 +10,8 @@ import static java.util.Arrays.asList;
 
 public class ConcertFactory {
 
-    public static List<ConcertCreated> createConcerts() {
-        ConcertCreated concertCreated1 = new ConcertCreated(
+    public static List<CreateConcert> createConcerts() {
+        CreateConcert createConcert1 = new CreateConcert(
                 1L,
                 0,
                 "Red Hot Chili Peppers",
@@ -28,7 +28,7 @@ public class ConcertFactory {
                         new SectionSeating(8, "Section H", 78.89F, Integer.MAX_VALUE))
         );
 
-        ConcertCreated concertCreated2 = new ConcertCreated(
+        CreateConcert createConcert2 = new CreateConcert(
                 2L,
                 1,
                 "Gomez",
@@ -46,6 +46,6 @@ public class ConcertFactory {
                 )
         );
 
-        return newArrayList(concertCreated1, concertCreated2);
+        return newArrayList(createConcert1, createConcert2);
     }
 }
