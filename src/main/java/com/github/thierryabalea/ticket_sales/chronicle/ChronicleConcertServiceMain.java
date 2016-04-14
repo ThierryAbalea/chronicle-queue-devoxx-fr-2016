@@ -1,7 +1,7 @@
 package com.github.thierryabalea.ticket_sales.chronicle;
 
 import com.github.thierryabalea.ticket_sales.domain.ConcertService;
-import com.github.thierryabalea.ticket_sales.domain.ConcertServiceListener;
+import com.github.thierryabalea.ticket_sales.domain.EventHandler;
 import com.github.thierryabalea.ticket_sales.domain.ConcertServiceManager;
 import net.openhft.chronicle.core.OS;
 import net.openhft.chronicle.queue.ChronicleQueue;
@@ -17,17 +17,17 @@ public class ChronicleConcertServiceMain {
 
     public static void main(String[] args) throws Exception {
         String concertServiceQueue = format("%s/%s", OS.TARGET, "concertServiceQueue");
-        String concertServiceListenerQueue = format("%s/%s", OS.TARGET, "concertServiceListenerQueue");
+        String eventHandlerQueue = format("%s/%s", OS.TARGET, "eventHandlerQueue");
         String concertCreatedQueue = format("%s/%s", OS.TARGET, "concertCreatedQueue");
 
         ConcertService concertService;
 
-        try (ChronicleQueue queue = SingleChronicleQueueBuilder.binary(concertServiceListenerQueue).build()) {
-            ConcertServiceListener serviceListener = queue.createAppender()
-                    .methodWriterBuilder(ConcertServiceListener.class)
+        try (ChronicleQueue queue = SingleChronicleQueueBuilder.binary(eventHandlerQueue).build()) {
+            EventHandler eventHandler = queue.createAppender()
+                    .methodWriterBuilder(EventHandler.class)
                     .recordHistory(true)
                     .get();
-            concertService = new ConcertServiceManager(serviceListener);
+            concertService = new ConcertServiceManager(eventHandler);
         }
 
         ExecutorService executorService = newSingleThreadExecutor();

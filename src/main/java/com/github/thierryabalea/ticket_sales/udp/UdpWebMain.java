@@ -1,7 +1,7 @@
 package com.github.thierryabalea.ticket_sales.udp;
 
 import com.github.thierryabalea.ticket_sales.api.*;
-import com.github.thierryabalea.ticket_sales.domain.ConcertServiceListener;
+import com.github.thierryabalea.ticket_sales.domain.EventHandler;
 import com.github.thierryabalea.ticket_sales.udp.translate.PollTranslator;
 import com.github.thierryabalea.ticket_sales.web.RequestWebServer;
 import com.github.thierryabalea.ticket_sales.web.ResponseWebServer;
@@ -84,11 +84,11 @@ public class UdpWebMain {
     }
 
     public static class EventProcessor {
-        private ConcertServiceListener listener;
+        private EventHandler eventHandler;
         private ResponseWebServer.PollHandler pollHandler;
 
-        public EventProcessor(ConcertServiceListener listener, ResponseWebServer.PollHandler pollHandler) {
-            this.listener = listener;
+        public EventProcessor(EventHandler eventHandler, ResponseWebServer.PollHandler pollHandler) {
+            this.eventHandler = eventHandler;
             this.pollHandler = pollHandler;
         }
 
@@ -98,22 +98,22 @@ public class UdpWebMain {
             switch (type) {
                 case CONCERT_CREATED:
                     final ConcertCreated concertCreated = (ConcertCreated) message.event;
-                    listener.onConcertAvailable(concertCreated);
+                    eventHandler.onConcertAvailable(concertCreated);
                     break;
 
                 case SECTION_UPDATED:
                     final SectionUpdated sectionUpdated = (SectionUpdated) message.event;
-                    listener.onSectionUpdated(sectionUpdated);
+                    eventHandler.onSectionUpdated(sectionUpdated);
                     break;
 
                 case ALLOCATION_APPROVED:
                     final AllocationApproved allocationApproved = (AllocationApproved) message.event;
-                    listener.onAllocationApproved(allocationApproved);
+                    eventHandler.onAllocationApproved(allocationApproved);
                     break;
 
                 case ALLOCATION_REJECTED:
                     final AllocationRejected rejection = (AllocationRejected) message.event;
-                    listener.onAllocationRejected(rejection);
+                    eventHandler.onAllocationRejected(rejection);
                     break;
 
                 case POLL:

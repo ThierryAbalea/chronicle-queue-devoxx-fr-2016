@@ -5,7 +5,7 @@ import com.github.thierryabalea.ticket_sales.api.AllocationRejected;
 import com.github.thierryabalea.ticket_sales.api.ConcertCreated;
 import com.github.thierryabalea.ticket_sales.api.SectionUpdated;
 import com.github.thierryabalea.ticket_sales.api.TicketPurchase;
-import com.github.thierryabalea.ticket_sales.domain.ConcertServiceListener;
+import com.github.thierryabalea.ticket_sales.domain.EventHandler;
 import com.github.thierryabalea.ticket_sales.domain.ConcertServiceManager;
 import com.github.thierryabalea.ticket_sales.web.RequestWebServer;
 import com.github.thierryabalea.ticket_sales.web.ResponseWebServer;
@@ -27,7 +27,7 @@ public class MethodCallMain {
                 (accountId, version) -> executor.submit(() -> responseWebServer.onPoll(accountId, version));
         responseWebServer.init(pollHandler);
 
-        SingleThreadConcertServiceListenerProxy proxy = new SingleThreadConcertServiceListenerProxy(responseWebServer);
+        SingleThreadEventHandlerProxy proxy = new SingleThreadEventHandlerProxy(responseWebServer);
         ConcertServiceManager concertServiceManager = new ConcertServiceManager(proxy);
 
         RequestWebServer.JsonRequestHandler requestHandler = request -> {
@@ -41,32 +41,32 @@ public class MethodCallMain {
         SeedClient.createConcerts(concertServiceManager);
     }
 
-    private static class SingleThreadConcertServiceListenerProxy implements ConcertServiceListener {
+    private static class SingleThreadEventHandlerProxy implements EventHandler {
 
-        private final ConcertServiceListener target;
+        private final EventHandler eventHandler;
 
-        public SingleThreadConcertServiceListenerProxy(ConcertServiceListener target) {
-            this.target = target;
+        public SingleThreadEventHandlerProxy(EventHandler eventHandler) {
+            this.eventHandler = eventHandler;
         }
 
         @Override
         public void onConcertAvailable(ConcertCreated concertCreated) {
-            executor.submit(() -> target.onConcertAvailable(concertCreated));
+            executor.submit(() -> eventHandler.onConcertAvailable(concertCreated));
         }
 
         @Override
         public void onAllocationApproved(AllocationApproved allocationApproved) {
-            executor.submit(() -> target.onAllocationApproved(allocationApproved));
+            executor.submit(() -> eventHandler.onAllocationApproved(allocationApproved));
         }
 
         @Override
         public void onAllocationRejected(AllocationRejected allocationRejected) {
-            executor.submit(() -> target.onAllocationRejected(allocationRejected));
+            executor.submit(() -> eventHandler.onAllocationRejected(allocationRejected));
         }
 
         @Override
         public void onSectionUpdated(SectionUpdated sectionUpdated) {
-            executor.submit(() -> target.onSectionUpdated(sectionUpdated));
+            executor.submit(() -> eventHandler.onSectionUpdated(sectionUpdated));
         }
     }
 }

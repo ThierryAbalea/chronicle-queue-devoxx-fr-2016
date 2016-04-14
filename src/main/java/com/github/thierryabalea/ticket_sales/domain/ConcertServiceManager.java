@@ -13,12 +13,12 @@ import static com.github.thierryabalea.ticket_sales.api.RejectionReason.NOT_ENOU
 import static com.github.thierryabalea.ticket_sales.api.RejectionReason.SECTION_DOES_NOT_EXIST;
 
 public class ConcertServiceManager implements Concert.Observer, ConcertService {
-    private final ConcertServiceListener listener;
+    private final EventHandler eventHandler;
     private final Long2ObjectMap<Concert> concertRepository = new Long2ObjectOpenHashMap<Concert>();
     private long sectionVersion = 0;
 
-    public ConcertServiceManager(ConcertServiceListener listener) {
-        this.listener = listener;
+    public ConcertServiceManager(EventHandler eventHandler) {
+        this.eventHandler = eventHandler;
     }
 
     @Override
@@ -41,7 +41,7 @@ public class ConcertServiceManager implements Concert.Observer, ConcertService {
                 seatingBySection);
         concertRepository.put(concert.getId(), concert);
         concert.addObserver(this);
-        listener.onConcertAvailable(eventCreated);
+        eventHandler.onConcertAvailable(eventCreated);
     }
 
     @Override
@@ -67,12 +67,12 @@ public class ConcertServiceManager implements Concert.Observer, ConcertService {
         concert.allocateSeating(section, numSeats);
 
         AllocationApproved allocationApproved = buildAllocationApproved(ticketPurchase);
-        listener.onAllocationApproved(allocationApproved);
+        eventHandler.onAllocationApproved(allocationApproved);
     }
 
     private void reject(TicketPurchase ticketPurchase, RejectionReason reason) {
         AllocationRejected rejected = buildAllocationRejected(ticketPurchase, reason);
-        listener.onAllocationRejected(rejected);
+        eventHandler.onAllocationRejected(rejected);
     }
 
     @NotNull
@@ -102,6 +102,6 @@ public class ConcertServiceManager implements Concert.Observer, ConcertService {
                 seating.getAvailableSeats()
         );
         sectionVersion++;
-        listener.onSectionUpdated(sectionUpdated);
+        eventHandler.onSectionUpdated(sectionUpdated);
     }
 }

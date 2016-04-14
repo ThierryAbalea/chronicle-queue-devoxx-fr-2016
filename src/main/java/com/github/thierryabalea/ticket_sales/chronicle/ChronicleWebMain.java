@@ -29,7 +29,7 @@ public class ChronicleWebMain {
         responseWebServer.init(pollHandler);
 
         String concertServiceQueue = format("%s/%s", OS.TARGET, "concertServiceQueue");
-        String concertServiceListenerQueue = format("%s/%s", OS.TARGET, "concertServiceListenerQueue");
+        String eventHandlerQueue = format("%s/%s", OS.TARGET, "eventHandlerQueue");
 
         ExecutorService executorService = newSingleThreadExecutor();
         try (ChronicleQueue queue = SingleChronicleQueueBuilder.binary(concertServiceQueue).build()) {
@@ -49,7 +49,7 @@ public class ChronicleWebMain {
             requestWebServer.init();
         }
 
-        try (ChronicleQueue queue = SingleChronicleQueueBuilder.binary(concertServiceListenerQueue).build()) {
+        try (ChronicleQueue queue = SingleChronicleQueueBuilder.binary(eventHandlerQueue).build()) {
             MethodReader reader = queue.createTailer().methodReader(responseWebServer);
             Thread controller = new WebControllerThread(reader, pollQueue, responseWebServer::onPoll);
             controller.run();

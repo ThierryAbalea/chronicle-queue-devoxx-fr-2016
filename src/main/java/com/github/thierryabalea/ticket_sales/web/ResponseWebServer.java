@@ -4,7 +4,7 @@ import com.github.thierryabalea.ticket_sales.api.AllocationApproved;
 import com.github.thierryabalea.ticket_sales.api.AllocationRejected;
 import com.github.thierryabalea.ticket_sales.api.ConcertCreated;
 import com.github.thierryabalea.ticket_sales.api.SectionUpdated;
-import com.github.thierryabalea.ticket_sales.domain.ConcertServiceListener;
+import com.github.thierryabalea.ticket_sales.domain.EventHandler;
 import com.github.thierryabalea.ticket_sales.web.json.AllocationApprovedToJson;
 import com.github.thierryabalea.ticket_sales.web.json.AllocationRejectedToJson;
 import com.github.thierryabalea.ticket_sales.web.json.ConcertCreatedToJson;
@@ -23,7 +23,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-public class ResponseWebServer implements ConcertServiceListener {
+public class ResponseWebServer implements EventHandler {
 
     public interface PollHandler {
         void onPoll(long accountId, long version);
