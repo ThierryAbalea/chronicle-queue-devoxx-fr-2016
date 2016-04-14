@@ -2,7 +2,7 @@ package com.github.thierryabalea.ticket_sales.chronicle;
 
 import com.github.thierryabalea.ticket_sales.api.Poll;
 import com.github.thierryabalea.ticket_sales.api.TicketPurchase;
-import com.github.thierryabalea.ticket_sales.domain.ConcertService;
+import com.github.thierryabalea.ticket_sales.domain.CommandHandler;
 import com.github.thierryabalea.ticket_sales.web.RequestWebServer;
 import com.github.thierryabalea.ticket_sales.web.ResponseWebServer;
 import com.github.thierryabalea.ticket_sales.web.json.TicketPurchaseFromJson;
@@ -28,20 +28,20 @@ public class ChronicleWebMain {
         ResponseWebServer.PollHandler pollHandler = (accountId, version) -> pollQueue.offer(new Poll(accountId, version));
         responseWebServer.init(pollHandler);
 
-        String concertServiceQueue = format("%s/%s", OS.TARGET, "concertServiceQueue");
+        String commandHandlerQueue = format("%s/%s", OS.TARGET, "commandHandlerQueue");
         String eventHandlerQueue = format("%s/%s", OS.TARGET, "eventHandlerQueue");
 
         ExecutorService executorService = newSingleThreadExecutor();
-        try (ChronicleQueue queue = SingleChronicleQueueBuilder.binary(concertServiceQueue).build()) {
-            ConcertService concertService = queue.createAppender()
-                    .methodWriterBuilder(ConcertService.class)
+        try (ChronicleQueue queue = SingleChronicleQueueBuilder.binary(commandHandlerQueue).build()) {
+            CommandHandler commandHandler = queue.createAppender()
+                    .methodWriterBuilder(CommandHandler.class)
                     .recordHistory(true)
                     .get();
 
             RequestWebServer.JsonRequestHandler requestHandler = request -> {
                 executorService.execute(() -> {
                     TicketPurchase ticketPurchase = TicketPurchaseFromJson.fromJson(request);
-                    concertService.onTicketPurchase(ticketPurchase);
+                    commandHandler.onTicketPurchase(ticketPurchase);
                 });
             };
 

@@ -1,6 +1,6 @@
 package com.github.thierryabalea.ticket_sales.chronicle;
 
-import com.github.thierryabalea.ticket_sales.domain.ConcertService;
+import com.github.thierryabalea.ticket_sales.domain.CommandHandler;
 import com.github.thierryabalea.ticket_sales.domain.EventHandler;
 import com.github.thierryabalea.ticket_sales.domain.ConcertServiceManager;
 import net.openhft.chronicle.core.OS;
@@ -16,32 +16,32 @@ import static java.util.concurrent.Executors.newSingleThreadExecutor;
 public class ChronicleConcertServiceMain {
 
     public static void main(String[] args) throws Exception {
-        String concertServiceQueue = format("%s/%s", OS.TARGET, "concertServiceQueue");
+        String commandHandlerQueue = format("%s/%s", OS.TARGET, "commandHandlerQueue");
         String eventHandlerQueue = format("%s/%s", OS.TARGET, "eventHandlerQueue");
         String concertCreatedQueue = format("%s/%s", OS.TARGET, "concertCreatedQueue");
 
-        ConcertService concertService;
+        CommandHandler commandHandler;
 
         try (ChronicleQueue queue = SingleChronicleQueueBuilder.binary(eventHandlerQueue).build()) {
             EventHandler eventHandler = queue.createAppender()
                     .methodWriterBuilder(EventHandler.class)
                     .recordHistory(true)
                     .get();
-            concertService = new ConcertServiceManager(eventHandler);
+            commandHandler = new ConcertServiceManager(eventHandler);
         }
 
         ExecutorService executorService = newSingleThreadExecutor();
 
-        MethodReader concertServiceReader;
-        try (ChronicleQueue queue = SingleChronicleQueueBuilder.binary(concertServiceQueue).build()) {
-            concertServiceReader = queue.createTailer().afterLastWritten(queue).methodReader(concertService);
+        MethodReader commandHandlerReader;
+        try (ChronicleQueue queue = SingleChronicleQueueBuilder.binary(commandHandlerQueue).build()) {
+            commandHandlerReader = queue.createTailer().afterLastWritten(queue).methodReader(commandHandler);
         }
 
         MethodReader concertCreatedReader;
         try (ChronicleQueue queue = SingleChronicleQueueBuilder.binary(concertCreatedQueue).build()) {
-            concertCreatedReader = queue.createTailer().afterLastWritten(queue).methodReader(concertService);
+            concertCreatedReader = queue.createTailer().afterLastWritten(queue).methodReader(commandHandler);
         }
 
-        executorService.execute(new ConcertServiceControllerThread(concertServiceReader, concertCreatedReader));
+        executorService.execute(new ConcertServiceControllerThread(commandHandlerReader, concertCreatedReader));
     }
 }

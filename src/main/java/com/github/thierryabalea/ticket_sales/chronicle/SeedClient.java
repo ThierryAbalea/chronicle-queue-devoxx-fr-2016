@@ -1,6 +1,6 @@
 package com.github.thierryabalea.ticket_sales.chronicle;
 
-import com.github.thierryabalea.ticket_sales.domain.ConcertService;
+import com.github.thierryabalea.ticket_sales.domain.CommandHandler;
 import net.openhft.chronicle.core.OS;
 import net.openhft.chronicle.queue.ChronicleQueue;
 import net.openhft.chronicle.queue.impl.single.SingleChronicleQueueBuilder;
@@ -14,11 +14,11 @@ public class SeedClient {
         String concertCreatedQueue = format("%s/%s", OS.TARGET, "concertCreatedQueue");
 
         try (ChronicleQueue queue = SingleChronicleQueueBuilder.binary(concertCreatedQueue).build()) {
-            ConcertService concertService = queue.createAppender()
-                    .methodWriterBuilder(ConcertService.class)
+            CommandHandler commandHandler = queue.createAppender()
+                    .methodWriterBuilder(CommandHandler.class)
                     .recordHistory(true)
                     .get();
-            createConcerts().stream().forEachOrdered(concertService::onConcertCreated);
+            createConcerts().stream().forEachOrdered(commandHandler::onConcertCreated);
         }
     }
 }
