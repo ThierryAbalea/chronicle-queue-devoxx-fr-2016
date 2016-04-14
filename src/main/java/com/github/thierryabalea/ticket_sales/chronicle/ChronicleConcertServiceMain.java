@@ -1,7 +1,7 @@
 package com.github.thierryabalea.ticket_sales.chronicle;
 
-import com.github.thierryabalea.ticket_sales.domain.CommandHandler;
-import com.github.thierryabalea.ticket_sales.domain.EventHandler;
+import com.github.thierryabalea.ticket_sales.api.service.CommandHandler;
+import com.github.thierryabalea.ticket_sales.api.service.EventHandler;
 import com.github.thierryabalea.ticket_sales.domain.ConcertServiceManager;
 import net.openhft.chronicle.core.OS;
 import net.openhft.chronicle.queue.ChronicleQueue;

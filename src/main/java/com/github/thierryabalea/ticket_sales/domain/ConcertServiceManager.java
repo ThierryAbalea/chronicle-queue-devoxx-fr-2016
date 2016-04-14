@@ -1,6 +1,8 @@
 package com.github.thierryabalea.ticket_sales.domain;
 
 import com.github.thierryabalea.ticket_sales.api.*;
+import com.github.thierryabalea.ticket_sales.api.service.CommandHandler;
+import com.github.thierryabalea.ticket_sales.api.service.EventHandler;
 import com.google.common.collect.Maps;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;

@@ -2,7 +2,7 @@ package com.github.thierryabalea.ticket_sales.chronicle;
 
 import com.github.thierryabalea.ticket_sales.api.Poll;
 import com.github.thierryabalea.ticket_sales.api.TicketPurchase;
-import com.github.thierryabalea.ticket_sales.domain.CommandHandler;
+import com.github.thierryabalea.ticket_sales.api.service.CommandHandler;
 import com.github.thierryabalea.ticket_sales.web.RequestWebServer;
 import com.github.thierryabalea.ticket_sales.web.ResponseWebServer;
 import com.github.thierryabalea.ticket_sales.web.json.TicketPurchaseFromJson;

@@ -1,7 +1,7 @@
 package com.github.thierryabalea.ticket_sales.udp;
 
 import com.github.thierryabalea.ticket_sales.api.*;
-import com.github.thierryabalea.ticket_sales.domain.EventHandler;
+import com.github.thierryabalea.ticket_sales.api.service.EventHandler;
 import com.github.thierryabalea.ticket_sales.udp.translate.ConcertCreatedTranslator;
 import com.github.thierryabalea.ticket_sales.udp.translate.PurchaseApprovedTranslator;
 import com.github.thierryabalea.ticket_sales.udp.translate.AllocationRejectedTranslator;

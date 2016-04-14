@@ -1,4 +1,4 @@
-package com.github.thierryabalea.ticket_sales.domain;
+package com.github.thierryabalea.ticket_sales.api.service;
 
 import com.github.thierryabalea.ticket_sales.api.*;
 

@@ -5,7 +5,7 @@ import com.github.thierryabalea.ticket_sales.api.AllocationRejected;
 import com.github.thierryabalea.ticket_sales.api.ConcertCreated;
 import com.github.thierryabalea.ticket_sales.api.SectionUpdated;
 import com.github.thierryabalea.ticket_sales.api.TicketPurchase;
-import com.github.thierryabalea.ticket_sales.domain.EventHandler;
+import com.github.thierryabalea.ticket_sales.api.service.EventHandler;
 import com.github.thierryabalea.ticket_sales.domain.ConcertServiceManager;
 import com.github.thierryabalea.ticket_sales.web.RequestWebServer;
 import com.github.thierryabalea.ticket_sales.web.ResponseWebServer;

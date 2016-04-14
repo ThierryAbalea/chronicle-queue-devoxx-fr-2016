@@ -1,7 +1,7 @@
 package com.github.thierryabalea.ticket_sales.method_call;
 
 import com.github.thierryabalea.ticket_sales.ConcertFactory;
-import com.github.thierryabalea.ticket_sales.domain.CommandHandler;
+import com.github.thierryabalea.ticket_sales.api.service.CommandHandler;
 
 public class SeedClient {
 

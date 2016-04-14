@@ -1,7 +1,7 @@
 package com.github.thierryabalea.ticket_sales.udp;
 
 import com.github.thierryabalea.ticket_sales.api.*;
-import com.github.thierryabalea.ticket_sales.domain.EventHandler;
+import com.github.thierryabalea.ticket_sales.api.service.EventHandler;
 import com.github.thierryabalea.ticket_sales.udp.translate.PollTranslator;
 import com.github.thierryabalea.ticket_sales.web.RequestWebServer;
 import com.github.thierryabalea.ticket_sales.web.ResponseWebServer;
