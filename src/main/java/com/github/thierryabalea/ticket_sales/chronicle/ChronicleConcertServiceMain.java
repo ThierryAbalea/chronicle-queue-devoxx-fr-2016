@@ -2,7 +2,7 @@ package com.github.thierryabalea.ticket_sales.chronicle;
 
 import com.github.thierryabalea.ticket_sales.api.service.CommandHandler;
 import com.github.thierryabalea.ticket_sales.api.service.EventHandler;
-import com.github.thierryabalea.ticket_sales.domain.ConcertServiceManager;
+import com.github.thierryabalea.ticket_sales.domain.ConcertService;
 import net.openhft.chronicle.core.OS;
 import net.openhft.chronicle.queue.ChronicleQueue;
 import net.openhft.chronicle.queue.MethodReader;
@@ -27,7 +27,7 @@ public class ChronicleConcertServiceMain {
                     .methodWriterBuilder(EventHandler.class)
                     .recordHistory(true)
                     .get();
-            commandHandler = new ConcertServiceManager(eventHandler);
+            commandHandler = new ConcertService(eventHandler);
         }
 
         ExecutorService executorService = newSingleThreadExecutor();

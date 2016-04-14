@@ -6,7 +6,7 @@ import com.github.thierryabalea.ticket_sales.api.ConcertCreated;
 import com.github.thierryabalea.ticket_sales.api.SectionUpdated;
 import com.github.thierryabalea.ticket_sales.api.TicketPurchase;
 import com.github.thierryabalea.ticket_sales.api.service.EventHandler;
-import com.github.thierryabalea.ticket_sales.domain.ConcertServiceManager;
+import com.github.thierryabalea.ticket_sales.domain.ConcertService;
 import com.github.thierryabalea.ticket_sales.web.RequestWebServer;
 import com.github.thierryabalea.ticket_sales.web.ResponseWebServer;
 import com.github.thierryabalea.ticket_sales.web.json.TicketPurchaseFromJson;
@@ -28,17 +28,17 @@ public class MethodCallMain {
         responseWebServer.init(pollHandler);
 
         SingleThreadEventHandlerProxy proxy = new SingleThreadEventHandlerProxy(responseWebServer);
-        ConcertServiceManager concertServiceManager = new ConcertServiceManager(proxy);
+        ConcertService concertService = new ConcertService(proxy);
 
         RequestWebServer.JsonRequestHandler requestHandler = request -> {
             TicketPurchase ticketPurchase = TicketPurchaseFromJson.fromJson(request);
-            concertServiceManager.onTicketPurchase(ticketPurchase);
+            concertService.onTicketPurchase(ticketPurchase);
         };
         RequestWebServer requestWebServer =
                 new RequestWebServer(requestHandler);
         requestWebServer.init();
 
-        SeedClient.createConcerts(concertServiceManager);
+        SeedClient.createConcerts(concertService);
     }
 
     private static class SingleThreadEventHandlerProxy implements EventHandler {

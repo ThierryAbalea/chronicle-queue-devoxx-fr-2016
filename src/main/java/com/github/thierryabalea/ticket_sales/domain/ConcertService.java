@@ -14,12 +14,12 @@ import static com.github.thierryabalea.ticket_sales.api.RejectionReason.CONCERT_
 import static com.github.thierryabalea.ticket_sales.api.RejectionReason.NOT_ENOUGH_SEATS;
 import static com.github.thierryabalea.ticket_sales.api.RejectionReason.SECTION_DOES_NOT_EXIST;
 
-public class ConcertServiceManager implements Concert.Observer, CommandHandler {
+public class ConcertService implements Concert.Observer, CommandHandler {
     private final EventHandler eventHandler;
     private final Long2ObjectMap<Concert> concertRepository = new Long2ObjectOpenHashMap<Concert>();
     private long sectionVersion = 0;
 
-    public ConcertServiceManager(EventHandler eventHandler) {
+    public ConcertService(EventHandler eventHandler) {
         this.eventHandler = eventHandler;
     }
 

@@ -3,12 +3,12 @@ package com.github.thierryabalea.ticket_sales.udp;
 import com.github.thierryabalea.ticket_sales.api.ConcertCreated;
 import com.github.thierryabalea.ticket_sales.api.EventType;
 import com.github.thierryabalea.ticket_sales.api.TicketPurchase;
-import com.github.thierryabalea.ticket_sales.domain.ConcertServiceManager;
+import com.github.thierryabalea.ticket_sales.domain.ConcertService;
 
 public class Dispatcher {
-    private final ConcertServiceManager service;
+    private final ConcertService service;
 
-    public Dispatcher(ConcertServiceManager service) {
+    public Dispatcher(ConcertService service) {
         this.service = service;
     }
 
