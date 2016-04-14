@@ -25,6 +25,10 @@ import java.util.concurrent.ConcurrentMap;
 
 public class ResponseWebServer implements ConcertServiceListener {
 
+    public interface PollHandler {
+        void onPoll(long accountId, long version);
+    }
+
     // Event data
     private final Long2ObjectMap<JSONArray> eventsByAccountId = new Long2ObjectOpenHashMap<>();
     private final Long2ObjectMap<JSONObject> concertsByConcertId = new Long2ObjectOpenHashMap<>();
@@ -39,7 +43,11 @@ public class ResponseWebServer implements ConcertServiceListener {
     // Current contexts
     private final ConcurrentMap<Long, Req> requestsByAccount = new ConcurrentHashMap<>();
 
-    public void init() throws IOException {
+    private PollHandler pollHandler;
+
+    public void init(PollHandler pollHandler) throws IOException {
+        this.pollHandler = pollHandler;
+
         On.post("/response").plain((Req req) -> {
             doPost(req);
             return "OK";
@@ -68,6 +76,17 @@ public class ResponseWebServer implements ConcertServiceListener {
     @Override
     public void onAllocationRejected(AllocationRejected allocationRejected) {
         enqueueEvent(allocationRejected.accountId, allocationRejectedToJson.toJson(allocationRejected));
+    }
+
+    public void onPoll(long accountId, long version) {
+        JSONArray events = eventsByAccountId.get(accountId);
+
+        events = getUpdatedValues(events, concertsByConcertId.values(), version);
+        events = getUpdatedValues(events, sectionUpdatedByKey.values(), version);
+
+        if (null != events && !events.isEmpty()) {
+            dispatch(accountId, events);
+        }
     }
 
     private JSONArray getUpdatedValues(JSONArray events, Collection<JSONObject> values, long version) {
@@ -124,19 +143,10 @@ public class ResponseWebServer implements ConcertServiceListener {
     private void doPost(Req req) {
         long accountId = Long.parseLong(req.param("account"));
         long version = Long.parseLong(req.param("version"));
-
+        req.async();
         requestsByAccount.put(accountId, req);
 
-        JSONArray events = eventsByAccountId.get(accountId);
-
-        events = getUpdatedValues(events, concertsByConcertId.values(), version);
-        events = getUpdatedValues(events, sectionUpdatedByKey.values(), version);
-
-        if (null != events && !events.isEmpty()) {
-            dispatch(accountId, events);
-        } else {
-            req.async();
-        }
+        pollHandler.onPoll(accountId, version);
     }
 
     private SectionKey sectionKeyFrom(final SectionUpdated sectionUpdated) {

@@ -11,7 +11,7 @@ import net.openhft.chronicle.queue.impl.single.SingleChronicleQueueBuilder;
 import java.util.concurrent.ExecutorService;
 
 import static java.lang.String.format;
-import static java.util.concurrent.Executors.newFixedThreadPool;
+import static java.util.concurrent.Executors.newSingleThreadExecutor;
 
 public class ChronicleConcertServiceMain {
 
@@ -30,16 +30,18 @@ public class ChronicleConcertServiceMain {
             concertService = new ConcertServiceManager(serviceListener);
         }
 
-        ExecutorService executorService = newFixedThreadPool(2);
+        ExecutorService executorService = newSingleThreadExecutor();
 
+        MethodReader concertServiceReader;
         try (ChronicleQueue queue = SingleChronicleQueueBuilder.binary(concertServiceQueue).build()) {
-            MethodReader reader = queue.createTailer().afterLastWritten(queue).methodReader(concertService);
-            executorService.execute(new ControllerThread(reader));
+            concertServiceReader = queue.createTailer().afterLastWritten(queue).methodReader(concertService);
         }
 
+        MethodReader concertCreatedReader;
         try (ChronicleQueue queue = SingleChronicleQueueBuilder.binary(concertCreatedQueue).build()) {
-            MethodReader reader = queue.createTailer().afterLastWritten(queue).methodReader(concertService);
-            executorService.execute(new ControllerThread(reader));
+            concertCreatedReader = queue.createTailer().afterLastWritten(queue).methodReader(concertService);
         }
+
+        executorService.execute(new ConcertServiceControllerThread(concertServiceReader, concertCreatedReader));
     }
 }

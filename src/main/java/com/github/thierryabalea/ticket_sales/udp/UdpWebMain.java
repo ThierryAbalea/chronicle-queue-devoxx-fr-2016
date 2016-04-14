@@ -2,6 +2,7 @@ package com.github.thierryabalea.ticket_sales.udp;
 
 import com.github.thierryabalea.ticket_sales.api.*;
 import com.github.thierryabalea.ticket_sales.domain.ConcertServiceListener;
+import com.github.thierryabalea.ticket_sales.udp.translate.PollTranslator;
 import com.github.thierryabalea.ticket_sales.web.RequestWebServer;
 import com.github.thierryabalea.ticket_sales.web.ResponseWebServer;
 import com.github.thierryabalea.ticket_sales.web.json.TicketPurchaseFromJson;
@@ -66,7 +67,7 @@ public class UdpWebMain {
                 1024,
                 DaemonThreadFactory.INSTANCE);
         ResponseWebServer responseWebServer = new ResponseWebServer();
-        EventProcessor eventProcessor = new EventProcessor(responseWebServer);
+        EventProcessor eventProcessor = new EventProcessor(responseWebServer, responseWebServer::onPoll);
         disruptor.handleEventsWith(eventProcessor::onEvent);
         RingBuffer<Message> ringBuffer = disruptor.start();
 
@@ -77,14 +78,18 @@ public class UdpWebMain {
 
         LOGGER.info("Listening onConcertCreated {}", port);
 
-        responseWebServer.init();
+        ResponseWebServer.PollHandler pollHandler =
+                (accountId, version) -> ringBuffer.publishEvent(PollTranslator::translateTo, accountId, version);
+        responseWebServer.init(pollHandler);
     }
 
     public static class EventProcessor {
         private ConcertServiceListener listener;
+        private ResponseWebServer.PollHandler pollHandler;
 
-        public EventProcessor(ConcertServiceListener listener) {
+        public EventProcessor(ConcertServiceListener listener, ResponseWebServer.PollHandler pollHandler) {
             this.listener = listener;
+            this.pollHandler = pollHandler;
         }
 
         public void onEvent(Message message, long sequence, boolean endOfBatch) throws Exception {
@@ -109,6 +114,11 @@ public class UdpWebMain {
                 case ALLOCATION_REJECTED:
                     final AllocationRejected rejection = (AllocationRejected) message.event;
                     listener.onAllocationRejected(rejection);
+                    break;
+
+                case POLL:
+                    final Poll poll = (Poll) message.event;
+                    pollHandler.onPoll(poll.accountId, poll.version);
                     break;
             }
         }
