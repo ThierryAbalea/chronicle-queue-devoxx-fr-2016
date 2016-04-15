@@ -50,7 +50,7 @@ public class ChronicleWebMain {
         }
 
         try (ChronicleQueue queue = SingleChronicleQueueBuilder.binary(eventHandlerQueue).build()) {
-            MethodReader reader = queue.createTailer().methodReader(responseWebServer);
+            MethodReader reader = queue.createTailer().afterLastWritten(queue).methodReader(responseWebServer);
             Thread controller = new WebControllerThread(reader, pollQueue, responseWebServer::onPoll);
             controller.run();
         }
