@@ -17,14 +17,15 @@ import java.util.concurrent.Executors;
 
 public class MethodCallMain {
 
-    private static final ExecutorService executor = Executors.newSingleThreadExecutor();
+    private static final ExecutorService webExecutor = Executors.newSingleThreadExecutor();
+    private static final ExecutorService concertServiceExecutor = Executors.newSingleThreadExecutor();
 
     public static void main(String[] args) throws Exception {
         On.port(7070);
 
         ResponseWebServer responseWebServer = new ResponseWebServer();
         ResponseWebServer.PollHandler pollHandler =
-                (accountId, version) -> executor.submit(() -> responseWebServer.onPoll(accountId, version));
+                (accountId, version) -> webExecutor.execute(() -> responseWebServer.onPoll(accountId, version));
         responseWebServer.init(pollHandler);
 
         SingleThreadEventHandlerProxy proxy = new SingleThreadEventHandlerProxy(responseWebServer);
@@ -32,13 +33,13 @@ public class MethodCallMain {
 
         RequestWebServer.JsonRequestHandler requestHandler = request -> {
             TicketPurchase ticketPurchase = TicketPurchaseFromJson.fromJson(request);
-            concertService.onTicketPurchase(ticketPurchase);
+            concertServiceExecutor.execute(() -> concertService.onTicketPurchase(ticketPurchase));
         };
         RequestWebServer requestWebServer =
                 new RequestWebServer(requestHandler);
         requestWebServer.init();
 
-        SeedClient.createConcerts(concertService);
+        concertServiceExecutor.execute(() -> SeedClient.createConcerts(concertService));
     }
 
     private static class SingleThreadEventHandlerProxy implements EventHandler {
@@ -51,22 +52,22 @@ public class MethodCallMain {
 
         @Override
         public void onConcertAvailable(ConcertCreated concertCreated) {
-            executor.submit(() -> eventHandler.onConcertAvailable(concertCreated));
+            webExecutor.submit(() -> eventHandler.onConcertAvailable(concertCreated));
         }
 
         @Override
         public void onAllocationApproved(AllocationApproved allocationApproved) {
-            executor.submit(() -> eventHandler.onAllocationApproved(allocationApproved));
+            webExecutor.submit(() -> eventHandler.onAllocationApproved(allocationApproved));
         }
 
         @Override
         public void onAllocationRejected(AllocationRejected allocationRejected) {
-            executor.submit(() -> eventHandler.onAllocationRejected(allocationRejected));
+            webExecutor.submit(() -> eventHandler.onAllocationRejected(allocationRejected));
         }
 
         @Override
         public void onSectionUpdated(SectionUpdated sectionUpdated) {
-            executor.submit(() -> eventHandler.onSectionUpdated(sectionUpdated));
+            webExecutor.submit(() -> eventHandler.onSectionUpdated(sectionUpdated));
         }
     }
 }
