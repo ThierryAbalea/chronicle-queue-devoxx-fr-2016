@@ -11,9 +11,8 @@ import static java.lang.String.format;
 public class SeedClient {
 
     public static void main(String[] args) throws Exception {
-        String createConcertQueue = format("%s/%s", OS.TARGET, "createConcertQueue");
-
-        try (ChronicleQueue queue = SingleChronicleQueueBuilder.binary(createConcertQueue).build()) {
+        String createConcertQueuePath = format("%s/%s", OS.TARGET, "createConcertQueue");
+        try (ChronicleQueue queue = SingleChronicleQueueBuilder.binary(createConcertQueuePath).build()) {
             CommandHandler commandHandler = queue.createAppender()
                     .methodWriterBuilder(CommandHandler.class)
                     .recordHistory(true)

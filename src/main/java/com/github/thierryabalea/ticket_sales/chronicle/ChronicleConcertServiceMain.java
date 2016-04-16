@@ -16,58 +16,60 @@ import static java.util.concurrent.TimeUnit.MICROSECONDS;
 
 public class ChronicleConcertServiceMain extends Thread {
 
-    private final Pauser pauser = new LongPauser(1, 100, 500, 10_000, MICROSECONDS);
-    private MethodReader commandHandlerReader;
-    private MethodReader createConcertReader;
-
     public static void main(String[] args) throws Exception {
-        new ChronicleConcertServiceMain().main();
-    }
 
-    public void main() {
-        String commandHandlerQueue = format("%s/%s", OS.TARGET, "commandHandlerQueue");
-        String eventHandlerQueue = format("%s/%s", OS.TARGET, "eventHandlerQueue");
-        String createConcertQueue = format("%s/%s", OS.TARGET, "createConcertQueue");
+        String eventHandlerQueuePath = format("%s/%s", OS.TARGET, "eventHandlerQueue");
+        ChronicleQueue eventHandlerQueue = SingleChronicleQueueBuilder.binary(eventHandlerQueuePath).build();
+        EventHandler eventHandler = eventHandlerQueue
+                .createAppender()
+                .methodWriterBuilder(EventHandler.class)
+                .recordHistory(true)
+                .get();
 
-        CommandHandler commandHandler;
+        CommandHandler commandHandler = new ConcertService(eventHandler);
 
-        try (ChronicleQueue queue = SingleChronicleQueueBuilder.binary(eventHandlerQueue).build()) {
-            EventHandler eventHandler = queue.createAppender()
-                    .methodWriterBuilder(EventHandler.class)
-                    .recordHistory(true)
-                    .get();
-            commandHandler = new ConcertService(eventHandler);
-        }
+        String commandHandlerQueuePath = format("%s/%s", OS.TARGET, "commandHandlerQueue");
+        ChronicleQueue commandHandlerQueue = SingleChronicleQueueBuilder.binary(commandHandlerQueuePath).sourceId(1).build();
+        MethodReader commandHandlerReader = commandHandlerQueue
+                .createTailer()
+                .afterLastWritten(eventHandlerQueue)
+                .methodReader(commandHandler);
 
-        try (ChronicleQueue queue = SingleChronicleQueueBuilder.binary(commandHandlerQueue).build()) {
-            commandHandlerReader = queue.createTailer().afterLastWritten(queue).methodReader(commandHandler);
-        }
+        String createConcertQueuePath = format("%s/%s", OS.TARGET, "createConcertQueue");
+        ChronicleQueue createConcertQueue = SingleChronicleQueueBuilder.binary(createConcertQueuePath).sourceId(2).build();
+        MethodReader createConcertReader = createConcertQueue
+                .createTailer()
+                .afterLastWritten(eventHandlerQueue)
+                .methodReader(commandHandler);
 
-        try (ChronicleQueue queue = SingleChronicleQueueBuilder.binary(createConcertQueue).build()) {
-            createConcertReader = queue.createTailer().afterLastWritten(queue).methodReader(commandHandler);
-        }
-
-        this.start();
-    }
-
-    @Override
-    public void run() {
-        AffinityLock lock = AffinityLock.acquireLock();
-        try {
-            while (true) {
-                boolean didSomeWork = false;
-
-                didSomeWork |= commandHandlerReader.readOne();
-                didSomeWork |= createConcertReader.readOne();
-
-                if (didSomeWork) {
-                    pauser.reset();
-                } else {
-                    pauser.pause();
-                }
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+            @Override
+            public void run() {
+                eventHandlerQueue.close();
+                commandHandlerQueue.close();
+                createConcertQueue.close();
             }
-        } finally {
-            lock.release();
-        }
+        });
+
+        new Thread(() -> {
+            AffinityLock lock = AffinityLock.acquireLock();
+            try {
+                Pauser pauser = new LongPauser(1, 100, 500, 10_000, MICROSECONDS);
+                while (true) {
+                    boolean didSomeWork = false;
+
+                    didSomeWork |= commandHandlerReader.readOne();
+                    didSomeWork |= createConcertReader.readOne();
+
+                    if (didSomeWork) {
+                        pauser.reset();
+                    } else {
+                        pauser.pause();
+                    }
+                }
+            } finally {
+                lock.release();
+            }
+        }).start();
     }
 }
