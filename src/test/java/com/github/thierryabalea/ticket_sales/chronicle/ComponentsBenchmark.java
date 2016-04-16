@@ -1,5 +1,6 @@
-package com.github.thierryabalea.ticket_sales;
+package com.github.thierryabalea.ticket_sales.chronicle;
 
+import com.github.thierryabalea.ticket_sales.ConcertFactory;
 import com.github.thierryabalea.ticket_sales.api.TicketPurchase;
 import com.github.thierryabalea.ticket_sales.api.service.CommandHandler;
 import com.github.thierryabalea.ticket_sales.api.service.EventHandler;
