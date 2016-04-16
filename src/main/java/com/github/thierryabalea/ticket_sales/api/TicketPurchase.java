@@ -3,7 +3,7 @@ package com.github.thierryabalea.ticket_sales.api;
 import net.openhft.chronicle.wire.AbstractMarshallable;
 
 
-public class TicketPurchase extends AbstractMarshallable implements TicketingEvent{
+public class TicketPurchase extends AbstractMarshallable implements TicketingEvent {
     public final long concertId;
     public final long sectionId;
     public final int numSeats;
@@ -16,9 +16,5 @@ public class TicketPurchase extends AbstractMarshallable implements TicketingEve
         this.numSeats = numSeats;
         this.accountId = accountId;
         this.requestId = requestId;
-    }
-
-    public static EventType type() {
-        return EventType.TICKET_PURCHASE;
     }
 }

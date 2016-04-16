@@ -1,7 +1,5 @@
 package com.github.thierryabalea.ticket_sales.udp;
 
-import com.github.thierryabalea.ticket_sales.api.EventType;
-
 import static com.github.thierryabalea.ticket_sales.ConcertFactory.createConcerts;
 import static com.google.common.base.Throwables.propagate;
 

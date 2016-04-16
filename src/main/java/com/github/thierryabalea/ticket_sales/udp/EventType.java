@@ -1,4 +1,4 @@
-package com.github.thierryabalea.ticket_sales.api;
+package com.github.thierryabalea.ticket_sales.udp;
 
 public enum EventType {
     TICKET_PURCHASE,
