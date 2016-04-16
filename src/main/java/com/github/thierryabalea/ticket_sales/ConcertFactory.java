@@ -3,9 +3,9 @@ package com.github.thierryabalea.ticket_sales;
 import com.github.thierryabalea.ticket_sales.api.command.CreateConcert;
 import com.github.thierryabalea.ticket_sales.api.event.SectionSeating;
 
+import java.util.Arrays;
 import java.util.List;
 
-import static com.google.common.collect.Lists.newArrayList;
 import static java.util.Arrays.asList;
 
 public class ConcertFactory {
@@ -46,6 +46,6 @@ public class ConcertFactory {
                 )
         );
 
-        return newArrayList(createConcert1, createConcert2);
+        return Arrays.asList(createConcert1, createConcert2);
     }
 }

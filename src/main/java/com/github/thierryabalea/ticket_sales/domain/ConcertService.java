@@ -9,7 +9,6 @@ import com.github.thierryabalea.ticket_sales.api.event.SectionSeating;
 import com.github.thierryabalea.ticket_sales.api.event.SectionUpdated;
 import com.github.thierryabalea.ticket_sales.api.service.CommandHandler;
 import com.github.thierryabalea.ticket_sales.api.service.EventHandler;
-import com.google.common.collect.Maps;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import org.jetbrains.annotations.NotNull;
@@ -31,7 +30,7 @@ public class ConcertService implements Concert.Observer, CommandHandler {
 
     @Override
     public void onCreateConcert(CreateConcert createConcert) {
-        HashMap<Section, Seating> seatingBySection = Maps.newHashMap();
+        HashMap<Section, Seating> seatingBySection = new HashMap<>();
 
         for (int i = 0, n = createConcert.numSections; i < n; i++) {
             SectionSeating sectionSeating = createConcert.sections.get(i);

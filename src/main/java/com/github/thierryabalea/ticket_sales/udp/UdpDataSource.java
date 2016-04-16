@@ -12,75 +12,59 @@ import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
 
-public class UdpDataSource implements Runnable
-{
+public class UdpDataSource implements Runnable {
     private final RingBuffer<Message> ringBuffer;
     private final SocketAddress address;
     private DatagramChannel channel;
     private DatagramSocket socket;
 
-    public UdpDataSource(RingBuffer<Message> ringBuffer, int port)
-    {
+    public UdpDataSource(RingBuffer<Message> ringBuffer, int port) {
         this.ringBuffer = ringBuffer;
         this.address = new InetSocketAddress(port);
     }
-    
-    public void bind() throws IOException
-    {
+
+    public void bind() throws IOException {
         System.out.println("Binding to address: " + address);
         channel = DatagramChannel.open();
         socket = channel.socket();
         socket.bind(address);
     }
 
-    public void run()
-    {
+    public void run() {
         ByteBuffer buffer = ByteBuffer.allocate(14000);
         ByteBuffer slice = buffer.slice();
-        
+
         Thread t = Thread.currentThread();
-        try
-        {
-            while (!t.isInterrupted())
-            {
+        try {
+            while (!t.isInterrupted()) {
                 buffer.clear();
                 slice.clear();
-                
+
                 channel.receive(buffer);
                 buffer.flip();
-//                System.out.println(buffer);
-                
-                do
-                {
+
+                do {
                     int length = buffer.getInt(slice.position());
                     slice.position(slice.position() + 4);
                     slice.limit(slice.position() + length);
-                    
+
                     long sequence = ringBuffer.next();
                     Message message = ringBuffer.get(sequence);
 
-                   // Bytes<ByteBuffer> byteBuffer = Bytes.elasticByteBuffer();
-
-                    //ByteBuffer buffer1 = ByteBuffer.allocate(20000);
-                    //buffer1.put(slice);
                     Wire wire = new TextWire(Bytes.wrapForRead(slice));
                     slice.position(slice.position() + length);
 
                     message.readMarshallable(wire);
-                  //  wire.getValueIn().marshallable(message);
-                 //   System.out.println(byteBuffer);
 
                     ringBuffer.publish(sequence);
-                    
+
                     slice.limit(buffer.limit());
-                } 
+                }
                 while (slice.position() < buffer.limit());
             }
-        }
-        catch (IOException e)
-        {
+        } catch (IOException e) {
             System.err.println("Buffer receive failed, exiting...");
             e.printStackTrace();
         }
-    }    
+    }
 }
