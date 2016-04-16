@@ -15,7 +15,12 @@ import net.openhft.chronicle.core.io.IOTools;
 import net.openhft.chronicle.queue.ChronicleQueue;
 import net.openhft.chronicle.queue.MethodReader;
 import net.openhft.chronicle.queue.impl.single.SingleChronicleQueueBuilder;
-import org.openjdk.jmh.annotations.*;
+import org.openjdk.jmh.annotations.Benchmark;
+import org.openjdk.jmh.annotations.Mode;
+import org.openjdk.jmh.annotations.Scope;
+import org.openjdk.jmh.annotations.Setup;
+import org.openjdk.jmh.annotations.State;
+import org.openjdk.jmh.annotations.TearDown;
 import org.openjdk.jmh.runner.Runner;
 import org.openjdk.jmh.runner.RunnerException;
 import org.openjdk.jmh.runner.options.Options;
@@ -43,7 +48,6 @@ public class ComponentsBenchmark {
     private File commandHandlerQueuePath;
     private ChronicleQueue commandHandlerQueue;
     private File eventHandlerQueuePath;
-    private CommandHandler commandHandler;
     private ChronicleQueue eventHandlerQueue;
     private MethodReader eventHandlerReader;
     private MethodReader commandHandlerReader;
@@ -106,7 +110,6 @@ public class ComponentsBenchmark {
     @Benchmark
     public void benchmarkComponents() {
         Map<String, Object> purchaseTicket = new HashMap<>();
-        purchaseTicket.put("sectionId", 1);
         purchaseTicket.put("accountId", 12);
         purchaseTicket.put("requestId", 76);
         switch (counter++ & 3) {
@@ -134,7 +137,11 @@ public class ComponentsBenchmark {
 
         requestHandler.onRequest(new JSONObject(purchaseTicket));
 
+        // onTicketPurchase
         assertTrue(commandHandlerReader.readOne());
+        // onSectionUpdated
+        assertTrue(eventHandlerReader.readOne());
+        // onAllocationApproved
         assertTrue(eventHandlerReader.readOne());
     }
 
@@ -147,7 +154,7 @@ public class ComponentsBenchmark {
         eventHandlerQueuePath = new File(target, "ComponentsBenchmark-eventHandlerQueue-" + System.nanoTime());
         eventHandlerQueue = SingleChronicleQueueBuilder.binary(eventHandlerQueuePath).build();
         EventHandler eventHandler = eventHandlerQueue.createAppender().methodWriter(EventHandler.class);
-        commandHandler = new ConcertService(eventHandler);
+        CommandHandler commandHandler = new ConcertService(eventHandler);
 
         ResponseWebServer responseWebServer = new ResponseWebServer();
         eventHandlerReader = eventHandlerQueue.createTailer().methodReader(responseWebServer);
@@ -157,14 +164,14 @@ public class ComponentsBenchmark {
         commandHandlerQueue = SingleChronicleQueueBuilder.binary(commandHandlerQueuePath).build();
         commandHandlerReader = commandHandlerQueue.createTailer().methodReader(commandHandler);
 
-        final CommandHandler commandHandler = commandHandlerQueue.createAppender().methodWriter(CommandHandler.class);
+        CommandHandler commandHandlerProxy = commandHandlerQueue.createAppender().methodWriter(CommandHandler.class);
 
         requestHandler = request -> {
             TicketPurchase ticketPurchase = TicketPurchaseFromJson.fromJson(request);
-            commandHandler.onTicketPurchase(ticketPurchase);
+            commandHandlerProxy.onTicketPurchase(ticketPurchase);
         };
 
-        ConcertFactory.createConcerts().stream().forEachOrdered(commandHandler::onCreateConcert);
+        ConcertFactory.createConcerts().stream().forEachOrdered(commandHandlerProxy::onCreateConcert);
         assertTrue(commandHandlerReader.readOne());
         assertTrue(eventHandlerReader.readOne());
         assertTrue(commandHandlerReader.readOne());
