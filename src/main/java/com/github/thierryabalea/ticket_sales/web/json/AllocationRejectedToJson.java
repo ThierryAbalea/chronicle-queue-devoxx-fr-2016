@@ -1,6 +1,6 @@
 package com.github.thierryabalea.ticket_sales.web.json;
 
-import com.github.thierryabalea.ticket_sales.api.AllocationRejected;
+import com.github.thierryabalea.ticket_sales.api.event.AllocationRejected;
 import net.minidev.json.JSONObject;
 
 public class AllocationRejectedToJson {

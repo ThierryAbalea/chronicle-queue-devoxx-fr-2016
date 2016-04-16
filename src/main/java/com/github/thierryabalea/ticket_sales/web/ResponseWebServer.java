@@ -1,9 +1,9 @@
 package com.github.thierryabalea.ticket_sales.web;
 
-import com.github.thierryabalea.ticket_sales.api.AllocationApproved;
-import com.github.thierryabalea.ticket_sales.api.AllocationRejected;
-import com.github.thierryabalea.ticket_sales.api.ConcertCreated;
-import com.github.thierryabalea.ticket_sales.api.SectionUpdated;
+import com.github.thierryabalea.ticket_sales.api.event.AllocationApproved;
+import com.github.thierryabalea.ticket_sales.api.event.AllocationRejected;
+import com.github.thierryabalea.ticket_sales.api.event.ConcertCreated;
+import com.github.thierryabalea.ticket_sales.api.event.SectionUpdated;
 import com.github.thierryabalea.ticket_sales.api.service.EventHandler;
 import com.github.thierryabalea.ticket_sales.web.json.AllocationApprovedToJson;
 import com.github.thierryabalea.ticket_sales.web.json.AllocationRejectedToJson;

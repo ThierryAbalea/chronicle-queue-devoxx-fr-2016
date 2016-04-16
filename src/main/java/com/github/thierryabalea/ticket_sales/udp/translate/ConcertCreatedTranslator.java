@@ -1,6 +1,6 @@
 package com.github.thierryabalea.ticket_sales.udp.translate;
 
-import com.github.thierryabalea.ticket_sales.api.ConcertCreated;
+import com.github.thierryabalea.ticket_sales.api.event.ConcertCreated;
 import com.github.thierryabalea.ticket_sales.udp.EventType;
 import com.github.thierryabalea.ticket_sales.udp.Message;
 

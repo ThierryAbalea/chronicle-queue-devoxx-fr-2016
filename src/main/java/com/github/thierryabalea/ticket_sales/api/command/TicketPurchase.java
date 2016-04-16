@@ -1,9 +1,8 @@
-package com.github.thierryabalea.ticket_sales.api;
+package com.github.thierryabalea.ticket_sales.api.command;
 
 import net.openhft.chronicle.wire.AbstractMarshallable;
 
-
-public class TicketPurchase extends AbstractMarshallable implements TicketingEvent {
+public class TicketPurchase extends AbstractMarshallable {
     public final long concertId;
     public final long sectionId;
     public final int numSeats;

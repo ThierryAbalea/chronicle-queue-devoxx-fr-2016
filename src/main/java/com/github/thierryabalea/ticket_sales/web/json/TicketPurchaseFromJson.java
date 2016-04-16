@@ -1,6 +1,6 @@
 package com.github.thierryabalea.ticket_sales.web.json;
 
-import com.github.thierryabalea.ticket_sales.api.TicketPurchase;
+import com.github.thierryabalea.ticket_sales.api.command.TicketPurchase;
 import net.minidev.json.JSONObject;
 
 public class TicketPurchaseFromJson {

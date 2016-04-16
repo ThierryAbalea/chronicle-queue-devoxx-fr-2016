@@ -1,7 +1,7 @@
 package com.github.thierryabalea.ticket_sales;
 
-import com.github.thierryabalea.ticket_sales.api.CreateConcert;
-import com.github.thierryabalea.ticket_sales.api.SectionSeating;
+import com.github.thierryabalea.ticket_sales.api.command.CreateConcert;
+import com.github.thierryabalea.ticket_sales.api.event.SectionSeating;
 
 import java.util.List;
 

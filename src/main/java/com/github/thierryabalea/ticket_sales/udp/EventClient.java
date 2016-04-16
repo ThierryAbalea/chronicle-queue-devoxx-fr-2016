@@ -1,6 +1,8 @@
 package com.github.thierryabalea.ticket_sales.udp;
 
-import com.github.thierryabalea.ticket_sales.api.*;
+import com.github.thierryabalea.ticket_sales.api.command.CreateConcert;
+import com.github.thierryabalea.ticket_sales.api.command.TicketPurchase;
+import com.github.thierryabalea.ticket_sales.api.event.SectionSeating;
 
 import java.util.Arrays;
 

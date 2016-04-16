@@ -1,6 +1,6 @@
 package com.github.thierryabalea.ticket_sales.web.json;
 
-import com.github.thierryabalea.ticket_sales.api.SectionUpdated;
+import com.github.thierryabalea.ticket_sales.api.event.SectionUpdated;
 import net.minidev.json.JSONObject;
 
 public class SectionUpdatedToJson {

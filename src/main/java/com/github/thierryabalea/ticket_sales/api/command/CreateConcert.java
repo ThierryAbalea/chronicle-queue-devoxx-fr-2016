@@ -1,10 +1,11 @@
-package com.github.thierryabalea.ticket_sales.api;
+package com.github.thierryabalea.ticket_sales.api.command;
 
+import com.github.thierryabalea.ticket_sales.api.event.SectionSeating;
 import net.openhft.chronicle.wire.AbstractMarshallable;
 
 import java.util.List;
 
-public class ConcertCreated extends AbstractMarshallable implements TicketingEvent {
+public class CreateConcert extends AbstractMarshallable {
     public final long concertId;
     public final long version;
     public final String name;
@@ -12,7 +13,7 @@ public class ConcertCreated extends AbstractMarshallable implements TicketingEve
     public final short numSections;
     public final List<SectionSeating> sections;
 
-    public ConcertCreated(long concertId, long version, String name, String venue, short numSections, List<SectionSeating> sections) {
+    public CreateConcert(long concertId, long version, String name, String venue, short numSections, List<SectionSeating> sections) {
         this.concertId = concertId;
         this.version = version;
         this.name = name;

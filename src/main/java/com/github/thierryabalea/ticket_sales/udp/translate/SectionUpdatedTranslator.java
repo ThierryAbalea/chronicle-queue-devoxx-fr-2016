@@ -2,7 +2,7 @@ package com.github.thierryabalea.ticket_sales.udp.translate;
 
 import com.github.thierryabalea.ticket_sales.udp.EventType;
 import com.github.thierryabalea.ticket_sales.udp.Message;
-import com.github.thierryabalea.ticket_sales.api.SectionUpdated;
+import com.github.thierryabalea.ticket_sales.api.event.SectionUpdated;
 
 public class SectionUpdatedTranslator {
 

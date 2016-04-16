@@ -1,6 +1,12 @@
 package com.github.thierryabalea.ticket_sales.domain;
 
-import com.github.thierryabalea.ticket_sales.api.*;
+import com.github.thierryabalea.ticket_sales.api.command.CreateConcert;
+import com.github.thierryabalea.ticket_sales.api.command.TicketPurchase;
+import com.github.thierryabalea.ticket_sales.api.event.AllocationApproved;
+import com.github.thierryabalea.ticket_sales.api.event.AllocationRejected;
+import com.github.thierryabalea.ticket_sales.api.event.ConcertCreated;
+import com.github.thierryabalea.ticket_sales.api.event.SectionSeating;
+import com.github.thierryabalea.ticket_sales.api.event.SectionUpdated;
 import com.github.thierryabalea.ticket_sales.api.service.CommandHandler;
 import com.github.thierryabalea.ticket_sales.api.service.EventHandler;
 import com.google.common.collect.Maps;
@@ -9,11 +15,10 @@ import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
-import java.util.List;
 
-import static com.github.thierryabalea.ticket_sales.api.RejectionReason.CONCERT_DOES_NOT_EXIST;
-import static com.github.thierryabalea.ticket_sales.api.RejectionReason.NOT_ENOUGH_SEATS;
-import static com.github.thierryabalea.ticket_sales.api.RejectionReason.SECTION_DOES_NOT_EXIST;
+import static com.github.thierryabalea.ticket_sales.api.event.AllocationRejected.RejectionReason.CONCERT_DOES_NOT_EXIST;
+import static com.github.thierryabalea.ticket_sales.api.event.AllocationRejected.RejectionReason.NOT_ENOUGH_SEATS;
+import static com.github.thierryabalea.ticket_sales.api.event.AllocationRejected.RejectionReason.SECTION_DOES_NOT_EXIST;
 
 public class ConcertService implements Concert.Observer, CommandHandler {
     private final EventHandler eventHandler;
@@ -84,7 +89,7 @@ public class ConcertService implements Concert.Observer, CommandHandler {
                 createConcert.sections);
     }
 
-    private void reject(TicketPurchase ticketPurchase, RejectionReason reason) {
+    private void reject(TicketPurchase ticketPurchase, AllocationRejected.RejectionReason reason) {
         AllocationRejected rejected = buildAllocationRejected(ticketPurchase, reason);
         eventHandler.onAllocationRejected(rejected);
     }
@@ -99,7 +104,7 @@ public class ConcertService implements Concert.Observer, CommandHandler {
     }
 
     @NotNull
-    private AllocationRejected buildAllocationRejected(TicketPurchase ticketPurchase, RejectionReason reason) {
+    private AllocationRejected buildAllocationRejected(TicketPurchase ticketPurchase, AllocationRejected.RejectionReason reason) {
         return new AllocationRejected(
                 ticketPurchase.accountId,
                 ticketPurchase.requestId,

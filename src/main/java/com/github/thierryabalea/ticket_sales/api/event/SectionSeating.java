@@ -1,4 +1,4 @@
-package com.github.thierryabalea.ticket_sales.api;
+package com.github.thierryabalea.ticket_sales.api.event;
 
 import net.openhft.chronicle.wire.AbstractMarshallable;
 

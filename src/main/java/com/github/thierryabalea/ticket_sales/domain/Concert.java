@@ -14,8 +14,8 @@ public class Concert
     private final String name;
     private final String venue;
     private final Map<Section, Seating> availableSeating;
-    private final Long2ObjectMap<Section> sectionById = new Long2ObjectOpenHashMap<Section>();
-    private final List<Observer> observers = new ArrayList<Observer>();
+    private final Long2ObjectMap<Section> sectionById = new Long2ObjectOpenHashMap<>();
+    private final List<Observer> observers = new ArrayList<>();
     
     public Concert(long id, String name, String venue, Map<Section, Seating> seating)
     {
