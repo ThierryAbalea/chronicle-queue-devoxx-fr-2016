@@ -63,9 +63,6 @@ public class ComponentsBenchmark {
 
     public static void main(String[] args) throws RunnerException, InvocationTargetException, IllegalAccessException, IOException {
         ComponentsBenchmark main = new ComponentsBenchmark();
-        if (OS.isLinux()) {
-            AffinityLock.acquireLock();
-        }
         if (Jvm.isFlightRecorder()) {
             // -verbose:gc  -XX:+UnlockCommercialFeatures -XX:+FlightRecorder -XX:StartFlightRecording=dumponexit=true,filename=myrecording.jfr,settings=profile -XX:+UnlockDiagnosticVMOptions -XX:+DebugNonSafepoints
             System.out.println("Detected Flight Recorder");
@@ -89,7 +86,7 @@ public class ComponentsBenchmark {
             System.out.println("measurementTime: " + time + " secs");
             Options opt = new OptionsBuilder()
                     .include(ComponentsBenchmark.class.getSimpleName())
-                    .warmupIterations(8)
+                    .warmupIterations(10)
                     .forks(1)
                     .mode(Mode.SampleTime)
                     .measurementTime(TimeValue.seconds(time))
@@ -114,8 +111,16 @@ public class ComponentsBenchmark {
         IOTools.shallowDeleteDirWithFiles(eventHandlerQueuePath);
     }
 
+    boolean first = true;
     @Benchmark
     public void benchmarkComponents() {
+        if (first && OS.isLinux()) {
+            System.out.println();
+            AffinityLock.acquireLock();
+            System.out.println();
+            first = false;
+        }
+
         wire.clear();
         wire.write("accountId").int32(12);
         wire.write("requestId").int32(76);
