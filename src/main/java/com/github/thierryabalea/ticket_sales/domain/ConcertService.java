@@ -15,9 +15,11 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 
+import static com.github.thierryabalea.ticket_sales.api.event.AllocationApproved.newAllocationApproved;
 import static com.github.thierryabalea.ticket_sales.api.event.AllocationRejected.RejectionReason.CONCERT_DOES_NOT_EXIST;
 import static com.github.thierryabalea.ticket_sales.api.event.AllocationRejected.RejectionReason.NOT_ENOUGH_SEATS;
 import static com.github.thierryabalea.ticket_sales.api.event.AllocationRejected.RejectionReason.SECTION_DOES_NOT_EXIST;
+import static com.github.thierryabalea.ticket_sales.api.event.SectionUpdated.newSectionUpdated;
 
 public class ConcertService implements Concert.Observer, CommandHandler {
     private final EventHandler eventHandler;
@@ -95,7 +97,7 @@ public class ConcertService implements Concert.Observer, CommandHandler {
 
     @NotNull
     private AllocationApproved buildAllocationApproved(TicketPurchase ticketPurchase) {
-        return new AllocationApproved(
+        return newAllocationApproved(
                 ticketPurchase.accountId,
                 ticketPurchase.requestId,
                 ticketPurchase.numSeats
@@ -113,7 +115,7 @@ public class ConcertService implements Concert.Observer, CommandHandler {
 
     @Override
     public void onSeatsAllocated(Concert event, Section section, Seating seating) {
-        SectionUpdated sectionUpdated = new SectionUpdated(
+        SectionUpdated sectionUpdated = newSectionUpdated(
                 event.getId(),
                 section.getId(),
                 sectionVersion,

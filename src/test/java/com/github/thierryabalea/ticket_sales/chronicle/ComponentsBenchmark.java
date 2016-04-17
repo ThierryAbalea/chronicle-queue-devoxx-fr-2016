@@ -5,10 +5,7 @@ import com.github.thierryabalea.ticket_sales.api.command.TicketPurchase;
 import com.github.thierryabalea.ticket_sales.api.service.CommandHandler;
 import com.github.thierryabalea.ticket_sales.api.service.EventHandler;
 import com.github.thierryabalea.ticket_sales.domain.ConcertService;
-import com.github.thierryabalea.ticket_sales.web.RequestWebServer;
 import com.github.thierryabalea.ticket_sales.web.ResponseWebServer;
-import com.github.thierryabalea.ticket_sales.web.json.TicketPurchaseFromJson;
-import net.minidev.json.JSONObject;
 import net.openhft.affinity.AffinityLock;
 import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.OS;
@@ -32,10 +29,9 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import static com.github.thierryabalea.ticket_sales.api.command.TicketPurchase.newTicketPurchase;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -52,8 +48,8 @@ public class ComponentsBenchmark {
     private ChronicleQueue eventHandlerQueue;
     private MethodReader eventHandlerReader;
     private MethodReader commandHandlerReader;
-    private RequestWebServer.JsonRequestHandler requestHandler;
     private int counter = 0;
+    private CommandHandler commandHandlerProxy;
 
     public static void main(String[] args) throws RunnerException, InvocationTargetException, IllegalAccessException, IOException {
         ComponentsBenchmark main = new ComponentsBenchmark();
@@ -110,33 +106,38 @@ public class ComponentsBenchmark {
 
     @Benchmark
     public void benchmarkComponents() {
-        Map<String, Object> purchaseTicket = new HashMap<>();
-        purchaseTicket.put("accountId", 12);
-        purchaseTicket.put("requestId", 76);
+        final long accountId = 12;
+        final long requestId = 76;
+        final long concertId;
+        final short numSeats;
+        final long sectionId;
         switch (counter++ & 3) {
             case 0:
-                purchaseTicket.put("concertId", 1);
-                purchaseTicket.put("numSeats", 1);
-                purchaseTicket.put("sectionId", 1);
+                concertId = 1;
+                numSeats = 1;
+                sectionId = 1;
                 break;
             case 1:
-                purchaseTicket.put("concertId", 2);
-                purchaseTicket.put("numSeats", 8);
-                purchaseTicket.put("sectionId", 2);
+                concertId = 2;
+                numSeats = 8;
+                sectionId = 2;
                 break;
             case 2:
-                purchaseTicket.put("concertId", 1);
-                purchaseTicket.put("numSeats", 3);
-                purchaseTicket.put("sectionId", 3);
+                concertId = 1;
+                numSeats = 3;
+                sectionId = 3;
                 break;
             case 3:
-                purchaseTicket.put("concertId", 2);
-                purchaseTicket.put("numSeats", 20);
-                purchaseTicket.put("sectionId", 5);
+                concertId = 2;
+                numSeats = 20;
+                sectionId = 5;
                 break;
+            default:
+                throw new IllegalStateException();
         }
 
-        requestHandler.onRequest(new JSONObject(purchaseTicket));
+        TicketPurchase ticketPurchase = newTicketPurchase(concertId, sectionId, numSeats, accountId, requestId);
+        commandHandlerProxy.onTicketPurchase(ticketPurchase);
 
         // onTicketPurchase
         assertTrue(commandHandlerReader.readOne());
@@ -165,12 +166,7 @@ public class ComponentsBenchmark {
         commandHandlerQueue = SingleChronicleQueueBuilder.binary(commandHandlerQueuePath).build();
         commandHandlerReader = commandHandlerQueue.createTailer().methodReader(commandHandler);
 
-        CommandHandler commandHandlerProxy = commandHandlerQueue.createAppender().methodWriter(CommandHandler.class);
-
-        requestHandler = request -> {
-            TicketPurchase ticketPurchase = TicketPurchaseFromJson.fromJson(request);
-            commandHandlerProxy.onTicketPurchase(ticketPurchase);
-        };
+        commandHandlerProxy = commandHandlerQueue.createAppender().methodWriter(CommandHandler.class);
 
         ConcertFactory.createConcerts().stream().forEachOrdered(commandHandlerProxy::onCreateConcert);
         assertTrue(commandHandlerReader.readOne());
