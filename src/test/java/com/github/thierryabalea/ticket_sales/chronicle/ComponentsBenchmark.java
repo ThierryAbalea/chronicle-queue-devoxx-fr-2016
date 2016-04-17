@@ -82,7 +82,7 @@ public class ComponentsBenchmark {
             runAll(main, TearDown.class);
 
         } else {
-            int time = Boolean.getBoolean("longTest") ? 30 : 3;
+            int time = Boolean.getBoolean("longTest") ? 30 : 6;
             System.out.println("measurementTime: " + time + " secs");
             Options opt = new OptionsBuilder()
                     .include(ComponentsBenchmark.class.getSimpleName())
