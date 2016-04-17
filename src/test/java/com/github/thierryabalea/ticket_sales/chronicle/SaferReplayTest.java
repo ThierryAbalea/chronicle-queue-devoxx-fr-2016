@@ -11,7 +11,6 @@ import net.openhft.chronicle.core.io.IOTools;
 import net.openhft.chronicle.queue.ChronicleQueue;
 import net.openhft.chronicle.queue.MethodReader;
 import net.openhft.chronicle.queue.impl.single.SingleChronicleQueueBuilder;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.concurrent.atomic.AtomicInteger;
@@ -29,17 +28,17 @@ public class SaferReplayTest {
     private static final long requestId = 76;
 
     @Test
-    @Ignore("Failing due to a Chronicle bug or our bad API usage")
     public void testBetterReplay() {
         String createConcertQueuePath = format("%s/%s", OS.TARGET, "createConcertQueuePath" + System.nanoTime());
         String commandHandlerQueuePath = format("%s/%s", OS.TARGET, "commandHandlerQueuePath-" + System.nanoTime());
         String eventHandlerQueuePath = format("%s/%s", OS.TARGET, "eventHandlerQueuePath-" + System.nanoTime());
 
         try {
-            try (ChronicleQueue createConcertQueue = SingleChronicleQueueBuilder.binary(createConcertQueuePath).build()) {
+            try (ChronicleQueue createConcertQueue = SingleChronicleQueueBuilder.binary(createConcertQueuePath).sourceId(1).build()) {
                 CommandHandler commandHandler = createConcertQueue
                         .createAppender()
                         .methodWriterBuilder(CommandHandler.class)
+                        .recordHistory(true)
                         .get();
                 CreateConcert createConcert = new CreateConcert(
                         concertId,
@@ -49,22 +48,35 @@ public class SaferReplayTest {
                         (short) 1,
                         asList(new SectionSeating(sectionId, "Section A", 58.50F, Integer.MAX_VALUE))
                 );
-                commandHandler.onCreateConcert(createConcert);
+
+                for (int i = 0; i < 4; i++) {
+                    commandHandler.onCreateConcert(createConcert);
+                    createConcert.concertId++;
+                }
+                System.out.println("#### createConcertQueue\n" + createConcertQueue.dump());
             }
 
-            try (ChronicleQueue commandHandlerQueue = SingleChronicleQueueBuilder.binary(commandHandlerQueuePath).build()) {
+            try (ChronicleQueue commandHandlerQueue = SingleChronicleQueueBuilder.binary(commandHandlerQueuePath).sourceId(2).build()) {
                 CommandHandler commandHandler = commandHandlerQueue
                         .createAppender()
                         .methodWriterBuilder(CommandHandler.class)
+                        .recordHistory(true)
                         .get();
                 TicketPurchase ticketPurchase = new TicketPurchase(concertId, sectionId, numSeats, accountId, requestId);
-                commandHandler.onTicketPurchase(ticketPurchase);
+                for (int i = 0; i < 4; i++) {
+                    commandHandler.onTicketPurchase(ticketPurchase);
+                    ticketPurchase.concertId++;
+                }
+                System.out.println("#### commandHandlerQueue\n" + commandHandlerQueue.dump());
             }
 
             AtomicInteger onCreateConcertCallsCount = new AtomicInteger(0);
             AtomicInteger onTicketPurchaseCallsCount = new AtomicInteger(0);
-            for (int i = 0; i < 2; i++) {
-                try (ChronicleQueue eventHandlerQueue = SingleChronicleQueueBuilder.binary(eventHandlerQueuePath).build();
+            int runs = 0;
+            for (int i = 0; i < 3; i++) {
+                runs++;
+
+                try (ChronicleQueue eventHandlerQueue = SingleChronicleQueueBuilder.binary(eventHandlerQueuePath).sourceId(99).build();
                      ChronicleQueue createConcertQueue = SingleChronicleQueueBuilder.binary(createConcertQueuePath).sourceId(1).build();
                      ChronicleQueue commandHandlerQueue = SingleChronicleQueueBuilder.binary(commandHandlerQueuePath).sourceId(2).build()) {
                     EventHandler eventHandler = eventHandlerQueue
@@ -101,14 +113,19 @@ public class SaferReplayTest {
 
                     createConcertReader.readOne();
                     commandHandlerReader.readOne();
+                    System.out.println("#### eventHandlerQueue\n" + eventHandlerQueue.dump());
                 }
             }
-            assertEquals("Only 1 call of onCreateConcert() expected", 1, onCreateConcertCallsCount.get());
-            assertEquals("Only 1 call of onTicketPurchase() expected", 1, onTicketPurchaseCallsCount.get());
+            assertEquals("Only " + runs + " call of onCreateConcert() expected", runs, onCreateConcertCallsCount.get());
+            assertEquals("Only " + runs + " call of onTicketPurchase() expected", runs, onTicketPurchaseCallsCount.get());
         } finally {
-            IOTools.shallowDeleteDirWithFiles(createConcertQueuePath);
-            IOTools.shallowDeleteDirWithFiles(commandHandlerQueuePath);
-            IOTools.shallowDeleteDirWithFiles(eventHandlerQueuePath);
+            try {
+                IOTools.shallowDeleteDirWithFiles(createConcertQueuePath);
+                IOTools.shallowDeleteDirWithFiles(commandHandlerQueuePath);
+                IOTools.shallowDeleteDirWithFiles(eventHandlerQueuePath);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 }
