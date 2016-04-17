@@ -25,24 +25,17 @@ import java.util.concurrent.ConcurrentMap;
 
 public class ResponseWebServer implements EventHandler {
 
-    public interface PollHandler {
-        void onPoll(long accountId, long version);
-    }
-
     // Event data
     private final Long2ObjectMap<JSONArray> eventsByAccountId = new Long2ObjectOpenHashMap<>();
     private final Long2ObjectMap<JSONObject> concertsByConcertId = new Long2ObjectOpenHashMap<>();
     private final Map<SectionKey, JSONObject> sectionUpdatedByKey = new HashMap<>();
-
     // Translators
     private final ConcertCreatedToJson concertCreatedToJson = new ConcertCreatedToJson();
     private final SectionUpdatedToJson sectionUpdatedToJson = new SectionUpdatedToJson();
     private final AllocationApprovedToJson allocationApprovedToJson = new AllocationApprovedToJson();
     private final AllocationRejectedToJson allocationRejectedToJson = new AllocationRejectedToJson();
-
     // Current contexts
     private final ConcurrentMap<Long, Req> requestsByAccount = new ConcurrentHashMap<>();
-
     private PollHandler pollHandler;
 
     public void init(PollHandler pollHandler) throws IOException {
@@ -56,26 +49,26 @@ public class ResponseWebServer implements EventHandler {
 
     @Override
     public void onConcertAvailable(ConcertCreated concertCreated) {
-        JSONObject concertCreatedAsJson = concertCreatedToJson.toJson(concertCreated);
-        concertsByConcertId.put(concertCreated.concertId, concertCreatedAsJson);
-        enqueueEvent(concertCreatedAsJson);
+//        JSONObject concertCreatedAsJson = concertCreatedToJson.toJson(concertCreated);
+//        concertsByConcertId.put(concertCreated.concertId, concertCreatedAsJson);
+//        enqueueEvent(concertCreatedAsJson);
     }
 
     @Override
     public void onSectionUpdated(SectionUpdated sectionUpdated) {
-        JSONObject sectionUpdatedAsJson = sectionUpdatedToJson.toJson(sectionUpdated);
-        sectionUpdatedByKey.put(sectionKeyFrom(sectionUpdated), sectionUpdatedAsJson);
-        enqueueEvent(sectionUpdatedAsJson);
+//        JSONObject sectionUpdatedAsJson = sectionUpdatedToJson.toJson(sectionUpdated);
+//        sectionUpdatedByKey.put(sectionKeyFrom(sectionUpdated), sectionUpdatedAsJson);
+//        enqueueEvent(sectionUpdatedAsJson);
     }
 
     @Override
     public void onAllocationApproved(AllocationApproved allocationApproved) {
-        enqueueEvent(allocationApproved.accountId, allocationApprovedToJson.toJson(allocationApproved));
+//        enqueueEvent(allocationApproved.accountId, allocationApprovedToJson.toJson(allocationApproved));
     }
 
     @Override
     public void onAllocationRejected(AllocationRejected allocationRejected) {
-        enqueueEvent(allocationRejected.accountId, allocationRejectedToJson.toJson(allocationRejected));
+//        enqueueEvent(allocationRejected.accountId, allocationRejectedToJson.toJson(allocationRejected));
     }
 
     public void onPoll(long accountId, long version) {
@@ -151,6 +144,10 @@ public class ResponseWebServer implements EventHandler {
 
     private SectionKey sectionKeyFrom(final SectionUpdated sectionUpdated) {
         return new SectionKey(sectionUpdated.concertId, sectionUpdated.sectionId);
+    }
+
+    public interface PollHandler {
+        void onPoll(long accountId, long version);
     }
 
     private static class SectionKey {
