@@ -34,6 +34,19 @@ import static org.junit.Assert.assertTrue;
  * inspire from
  * https://github.com/Vanilla-Java/Microservices/blob/master/src/test/java/net/openhft/samples/microservices/ComponentsBenchmark.java
  */
+/*
+  Percentiles, us/op:
+      p(0.0000) =      3.740 us/op
+     p(50.0000) =      3.872 us/op
+     p(90.0000) =      4.224 us/op
+     p(95.0000) =      4.880 us/op
+     p(99.0000) =      5.296 us/op
+     p(99.9000) =     13.536 us/op
+     p(99.9900) =     18.385 us/op
+     p(99.9990) =     33.549 us/op
+     p(99.9999) =  11616.256 us/op
+    p(100.0000) =  11616.256 us/op
+ */
 
 @State(Scope.Thread)
 public class ComponentsBenchmark {
