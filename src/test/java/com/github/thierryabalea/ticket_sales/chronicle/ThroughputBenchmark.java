@@ -2,16 +2,20 @@ package com.github.thierryabalea.ticket_sales.chronicle;
 
 import com.github.thierryabalea.ticket_sales.ConcertFactory;
 import com.github.thierryabalea.ticket_sales.api.command.TicketPurchase;
+import com.github.thierryabalea.ticket_sales.api.event.AllocationApproved;
+import com.github.thierryabalea.ticket_sales.api.event.AllocationRejected;
+import com.github.thierryabalea.ticket_sales.api.event.ConcertCreated;
+import com.github.thierryabalea.ticket_sales.api.event.SectionUpdated;
 import com.github.thierryabalea.ticket_sales.api.service.CommandHandler;
 import com.github.thierryabalea.ticket_sales.api.service.EventHandler;
 import com.github.thierryabalea.ticket_sales.domain.ConcertService;
-import com.github.thierryabalea.ticket_sales.web.ResponseWebServer;
 import net.openhft.affinity.AffinityLock;
 import net.openhft.chronicle.core.OS;
 import net.openhft.chronicle.core.io.IOTools;
 import net.openhft.chronicle.core.jlbh.JLBH;
 import net.openhft.chronicle.core.jlbh.JLBHOptions;
 import net.openhft.chronicle.core.jlbh.JLBHTask;
+import net.openhft.chronicle.core.util.NanoSampler;
 import net.openhft.chronicle.queue.ChronicleQueue;
 import net.openhft.chronicle.queue.MethodReader;
 import net.openhft.chronicle.queue.impl.single.SingleChronicleQueueBuilder;
@@ -31,10 +35,8 @@ public class ThroughputBenchmark implements JLBHTask {
     private final String eventHandlerQueuePath = OS.TMP + "ThroughputBenchmark/" + uuid + "/eventHandlerQueue";
     private final String commandHandlerQueuePath = OS.TMP + "ThroughputBenchmark/" + uuid + "/commandHandlerQueuePath";
     private final TicketPurchase ticketPurchase = new TicketPurchase(1, 1, 1, 12, 76);
-    private EventHandler responseWebServer = new ResponseWebServer();
-    private ChronicleConcertService chronicleConcertService;
-    private ChronicleWeb chronicleWeb;
-
+    private EventHandlerSampler eventHandlerSampler;
+    private CommandHandler commandHandler;
 
     public static void main(String[] args) {
         JLBHOptions lth = new JLBHOptions()
@@ -51,16 +53,24 @@ public class ThroughputBenchmark implements JLBHTask {
 
     @Override
     public void run(long startTimeNS) {
-        CommandHandler commandHandler = chronicleConcertService.commandHandler;
-        EventHandlerSampler eventHandlerSampler = chronicleWeb.eventHandlerSampler;
         eventHandlerSampler.ts0 = System.nanoTime();
         commandHandler.onTicketPurchase(ticketPurchase);
     }
 
     @Override
     public void init(JLBH jlbh) {
-        chronicleConcertService = new ChronicleConcertService();
-        chronicleWeb = new ChronicleWeb(jlbh);
+        Thread serviceThread = new ChronicleConcertService();
+        serviceThread.setDaemon(true);
+        serviceThread.start();
+
+        eventHandlerSampler = new EventHandlerSampler(jlbh);
+
+        Thread webThread = new ChronicleWeb(eventHandlerSampler);
+        webThread.setDaemon(true);
+        webThread.start();
+
+        ChronicleQueue commandHandlerQueue = SingleChronicleQueueBuilder.binary(commandHandlerQueuePath).build();
+        commandHandler = commandHandlerQueue.createAppender().methodWriter(CommandHandler.class);
     }
 
     @Override
@@ -72,21 +82,16 @@ public class ThroughputBenchmark implements JLBHTask {
     private class ChronicleConcertService extends Thread {
         private final Pauser pauser = new LongPauser(1, 100, 500, 10_000, TimeUnit.MICROSECONDS);
         private final MethodReader commandHandlerReader;
-        private final EventHandler eventHandler;
-        private final CommandHandler commandHandler;
 
-        private ChronicleConcertService() {
-            try (ChronicleQueue queue = SingleChronicleQueueBuilder.binary(eventHandlerQueuePath).build()) {
-                eventHandler = queue.createAppender().methodWriter(EventHandler.class);
-            }
+        ChronicleConcertService() {
+            ChronicleQueue eventHandlerQueue = SingleChronicleQueueBuilder.binary(eventHandlerQueuePath).build();
+            EventHandler eventHandler = eventHandlerQueue.createAppender().methodWriter(EventHandler.class);
 
-            try (ChronicleQueue queue = SingleChronicleQueueBuilder.binary(commandHandlerQueuePath).build()) {
-                commandHandler = new ConcertService(eventHandler);
-                ConcertFactory.createConcerts().stream().forEachOrdered(commandHandler::onCreateConcert);
-                commandHandlerReader = queue.createTailer().methodReader(commandHandler);
-            }
-            this.setDaemon(true);
-            this.start();
+            CommandHandler commandHandler = new ConcertService(eventHandler);
+            ConcertFactory.createConcerts().stream().forEachOrdered(commandHandler::onCreateConcert);
+
+            ChronicleQueue commandHandlerQueue = SingleChronicleQueueBuilder.binary(commandHandlerQueuePath).build();
+            commandHandlerReader = commandHandlerQueue.createTailer().methodReader(commandHandler);
         }
 
         @Override
@@ -109,21 +114,10 @@ public class ThroughputBenchmark implements JLBHTask {
     private class ChronicleWeb extends Thread {
         private final Pauser pauser = new LongPauser(1, 100, 500, 10_000, TimeUnit.MICROSECONDS);
         private final MethodReader eventHandlerReader;
-        private final CommandHandler commandHandler;
-        private final EventHandlerSampler eventHandlerSampler;
 
-        private ChronicleWeb(JLBH jlbh) {
-            try (ChronicleQueue queue = SingleChronicleQueueBuilder.binary(commandHandlerQueuePath).build()) {
-                commandHandler = queue.createAppender().methodWriter(CommandHandler.class);
-            }
-
-            try (ChronicleQueue queue = SingleChronicleQueueBuilder.binary(eventHandlerQueuePath).build()) {
-                eventHandlerSampler = new EventHandlerSampler(responseWebServer, jlbh);
-                eventHandlerReader = queue.createTailer().methodReader(eventHandlerSampler);
-            }
-
-            this.setDaemon(true);
-            this.start();
+        ChronicleWeb(EventHandlerSampler eventHandlerSampler) {
+            ChronicleQueue eventHandlerQueue = SingleChronicleQueueBuilder.binary(eventHandlerQueuePath).build();
+            eventHandlerReader = eventHandlerQueue.createTailer().methodReader(eventHandlerSampler);
         }
 
         @Override
@@ -140,6 +134,36 @@ public class ThroughputBenchmark implements JLBHTask {
             } finally {
                 lock.release();
             }
+        }
+    }
+
+    private class EventHandlerSampler implements EventHandler {
+
+        private final NanoSampler endToEnd;
+        long ts0;
+
+        public EventHandlerSampler(NanoSampler endToEnd) {
+            this.endToEnd = endToEnd;
+        }
+
+        @Override
+        public void onConcertAvailable(ConcertCreated concertCreated) {
+        }
+
+        @Override
+        public void onAllocationApproved(AllocationApproved allocationApproved) {
+            // this sample include at this stage also the consuming of onConcertAvailable call
+            // (because onConcertAvailable is called/published before onAllocationApproved)
+            long time = System.nanoTime() - ts0;
+            endToEnd.sampleNanos(time);
+        }
+
+        @Override
+        public void onAllocationRejected(AllocationRejected allocationRejected) {
+        }
+
+        @Override
+        public void onSectionUpdated(SectionUpdated sectionUpdated) {
         }
     }
 }

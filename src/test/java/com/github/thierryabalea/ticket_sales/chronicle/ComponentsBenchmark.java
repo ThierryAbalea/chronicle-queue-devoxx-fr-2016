@@ -200,11 +200,11 @@ public class ComponentsBenchmark {
 
     }
 
-    public interface JsonRequestHandler {
+    private interface JsonRequestHandler {
         void onRequest(JSONWire request);
     }
 
-    public static class NoOpEventHandler implements EventHandler {
+    private static class NoOpEventHandler implements EventHandler {
 
         @Override
         public void onConcertAvailable(ConcertCreated concertCreated) {
