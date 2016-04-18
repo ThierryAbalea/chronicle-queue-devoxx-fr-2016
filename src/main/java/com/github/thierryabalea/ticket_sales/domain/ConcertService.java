@@ -2,11 +2,7 @@ package com.github.thierryabalea.ticket_sales.domain;
 
 import com.github.thierryabalea.ticket_sales.api.command.CreateConcert;
 import com.github.thierryabalea.ticket_sales.api.command.TicketPurchase;
-import com.github.thierryabalea.ticket_sales.api.event.AllocationApproved;
-import com.github.thierryabalea.ticket_sales.api.event.AllocationRejected;
-import com.github.thierryabalea.ticket_sales.api.event.ConcertCreated;
-import com.github.thierryabalea.ticket_sales.api.event.SectionSeating;
-import com.github.thierryabalea.ticket_sales.api.event.SectionUpdated;
+import com.github.thierryabalea.ticket_sales.api.event.*;
 import com.github.thierryabalea.ticket_sales.api.service.CommandHandler;
 import com.github.thierryabalea.ticket_sales.api.service.EventHandler;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
@@ -15,13 +11,13 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 
-import static com.github.thierryabalea.ticket_sales.api.event.AllocationRejected.RejectionReason.CONCERT_DOES_NOT_EXIST;
-import static com.github.thierryabalea.ticket_sales.api.event.AllocationRejected.RejectionReason.NOT_ENOUGH_SEATS;
-import static com.github.thierryabalea.ticket_sales.api.event.AllocationRejected.RejectionReason.SECTION_DOES_NOT_EXIST;
+import static com.github.thierryabalea.ticket_sales.api.event.AllocationRejected.RejectionReason.*;
 
 public class ConcertService implements Concert.Observer, CommandHandler {
     private final EventHandler eventHandler;
     private final Long2ObjectMap<Concert> concertRepository = new Long2ObjectOpenHashMap<Concert>();
+    private final AllocationApproved allocationApproved = new AllocationApproved();
+    private final SectionUpdated sectionUpdated = new SectionUpdated();
     private long sectionVersion = 0;
 
     public ConcertService(EventHandler eventHandler) {
@@ -95,7 +91,8 @@ public class ConcertService implements Concert.Observer, CommandHandler {
 
     @NotNull
     private AllocationApproved buildAllocationApproved(TicketPurchase ticketPurchase) {
-        return new AllocationApproved(
+        // assume the caller must copy anything it needs to retain.
+        return allocationApproved.init(
                 ticketPurchase.accountId,
                 ticketPurchase.requestId,
                 ticketPurchase.numSeats
@@ -113,13 +110,14 @@ public class ConcertService implements Concert.Observer, CommandHandler {
 
     @Override
     public void onSeatsAllocated(Concert event, Section section, Seating seating) {
-        SectionUpdated sectionUpdated = new SectionUpdated(
+        sectionUpdated.init(
                 event.getId(),
                 section.getId(),
                 sectionVersion,
                 seating.getAvailableSeats()
         );
         sectionVersion++;
+        // assume the caller must copy anything it needs to retain.
         eventHandler.onSectionUpdated(sectionUpdated);
     }
 }

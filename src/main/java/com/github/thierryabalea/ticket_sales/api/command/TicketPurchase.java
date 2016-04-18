@@ -3,11 +3,14 @@ package com.github.thierryabalea.ticket_sales.api.command;
 import net.openhft.chronicle.wire.AbstractMarshallable;
 
 public class TicketPurchase extends AbstractMarshallable {
-    public final long concertId;
-    public final long sectionId;
-    public final int numSeats;
-    public final long accountId;
-    public final long requestId;
+    public long accountId;
+    public long requestId;
+    public long concertId;
+    public int numSeats;
+    public long sectionId;
+
+    public TicketPurchase() {
+    }
 
     public TicketPurchase(long concertId, long sectionId, int numSeats, long accountId, long requestId) {
         this.concertId = concertId;

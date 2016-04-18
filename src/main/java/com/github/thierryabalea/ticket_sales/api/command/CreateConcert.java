@@ -6,12 +6,12 @@ import net.openhft.chronicle.wire.AbstractMarshallable;
 import java.util.List;
 
 public class CreateConcert extends AbstractMarshallable {
-    public final long concertId;
     public final long version;
     public final String name;
     public final String venue;
     public final short numSections;
     public final List<SectionSeating> sections;
+    public long concertId; // make CreateConcert mutable to reduce garbage
 
     public CreateConcert(long concertId, long version, String name, String venue, short numSections, List<SectionSeating> sections) {
         this.concertId = concertId;
