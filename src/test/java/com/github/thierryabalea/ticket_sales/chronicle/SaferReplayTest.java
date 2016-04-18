@@ -33,6 +33,9 @@ public class SaferReplayTest {
         String commandHandlerQueuePath = format("%s/%s", OS.TARGET, "commandHandlerQueuePath-" + System.nanoTime());
         String eventHandlerQueuePath = format("%s/%s", OS.TARGET, "eventHandlerQueuePath-" + System.nanoTime());
 
+        int numberOfEventsPerQueue = 4;
+        // numberOfReadsPerQueue must be greater than numberOfEventsPerQueue to ensure than unexpected replay does not happens
+        int numberOfReadsPerQueue = numberOfEventsPerQueue + 2;
         try {
             try (ChronicleQueue createConcertQueue = SingleChronicleQueueBuilder.binary(createConcertQueuePath).sourceId(1).build()) {
                 CommandHandler commandHandler = createConcertQueue
@@ -49,11 +52,10 @@ public class SaferReplayTest {
                         asList(new SectionSeating(sectionId, "Section A", 58.50F, Integer.MAX_VALUE))
                 );
 
-                for (int i = 0; i < 4; i++) {
+                for (int i = 0; i < numberOfEventsPerQueue; i++) {
                     commandHandler.onCreateConcert(createConcert);
                     createConcert.concertId++;
                 }
-                System.out.println("#### createConcertQueue\n" + createConcertQueue.dump());
             }
 
             try (ChronicleQueue commandHandlerQueue = SingleChronicleQueueBuilder.binary(commandHandlerQueuePath).sourceId(2).build()) {
@@ -63,18 +65,15 @@ public class SaferReplayTest {
                         .recordHistory(true)
                         .get();
                 TicketPurchase ticketPurchase = new TicketPurchase(concertId, sectionId, numSeats, accountId, requestId);
-                for (int i = 0; i < 4; i++) {
+                for (int i = 0; i < numberOfEventsPerQueue; i++) {
                     commandHandler.onTicketPurchase(ticketPurchase);
                     ticketPurchase.concertId++;
                 }
-                System.out.println("#### commandHandlerQueue\n" + commandHandlerQueue.dump());
             }
 
             AtomicInteger onCreateConcertCallsCount = new AtomicInteger(0);
             AtomicInteger onTicketPurchaseCallsCount = new AtomicInteger(0);
-            int runs = 0;
-            for (int i = 0; i < 3; i++) {
-                runs++;
+            for (int i = 0; i < numberOfReadsPerQueue; i++) {
 
                 try (ChronicleQueue eventHandlerQueue = SingleChronicleQueueBuilder.binary(eventHandlerQueuePath).sourceId(99).build();
                      ChronicleQueue createConcertQueue = SingleChronicleQueueBuilder.binary(createConcertQueuePath).sourceId(1).build();
@@ -113,11 +112,10 @@ public class SaferReplayTest {
 
                     createConcertReader.readOne();
                     commandHandlerReader.readOne();
-                    System.out.println("#### eventHandlerQueue\n" + eventHandlerQueue.dump());
                 }
             }
-            assertEquals("Only " + runs + " call of onCreateConcert() expected", runs, onCreateConcertCallsCount.get());
-            assertEquals("Only " + runs + " call of onTicketPurchase() expected", runs, onTicketPurchaseCallsCount.get());
+            assertEquals("Only " + numberOfEventsPerQueue + " call of onCreateConcert() expected", numberOfEventsPerQueue, onCreateConcertCallsCount.get());
+            assertEquals("Only " + numberOfEventsPerQueue + " call of onTicketPurchase() expected", numberOfEventsPerQueue, onTicketPurchaseCallsCount.get());
         } finally {
             try {
                 IOTools.shallowDeleteDirWithFiles(createConcertQueuePath);
