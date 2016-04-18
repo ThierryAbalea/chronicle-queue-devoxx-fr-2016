@@ -7,6 +7,9 @@ import com.github.thierryabalea.ticket_sales.udp.Message;
 public class PurchaseApprovedTranslator {
     public static void translateTo(Message message, long sequence, AllocationApproved allocationApproved) {
         message.type = EventType.ALLOCATION_APPROVED;
-        message.event = allocationApproved;
+        // the following event will be passed to another thread via the disruptor and
+        // the parameter instance will be mutated by the current thread
+        message.event = new AllocationApproved()
+                .init(allocationApproved.accountId, allocationApproved.requestId, allocationApproved.numSeats);
     }
 }

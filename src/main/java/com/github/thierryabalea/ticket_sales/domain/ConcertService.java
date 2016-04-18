@@ -1,5 +1,6 @@
 package com.github.thierryabalea.ticket_sales.domain;
 
+import com.github.thierryabalea.ticket_sales.api.SectionSeating;
 import com.github.thierryabalea.ticket_sales.api.command.CreateConcert;
 import com.github.thierryabalea.ticket_sales.api.command.TicketPurchase;
 import com.github.thierryabalea.ticket_sales.api.event.*;

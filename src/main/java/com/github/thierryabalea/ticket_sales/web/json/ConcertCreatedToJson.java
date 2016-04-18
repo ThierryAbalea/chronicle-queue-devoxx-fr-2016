@@ -1,7 +1,7 @@
 package com.github.thierryabalea.ticket_sales.web.json;
 
 import com.github.thierryabalea.ticket_sales.api.event.ConcertCreated;
-import com.github.thierryabalea.ticket_sales.api.event.SectionSeating;
+import com.github.thierryabalea.ticket_sales.api.SectionSeating;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
 

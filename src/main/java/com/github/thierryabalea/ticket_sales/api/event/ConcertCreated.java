@@ -1,5 +1,6 @@
 package com.github.thierryabalea.ticket_sales.api.event;
 
+import com.github.thierryabalea.ticket_sales.api.SectionSeating;
 import net.openhft.chronicle.wire.AbstractMarshallable;
 
 import java.util.List;

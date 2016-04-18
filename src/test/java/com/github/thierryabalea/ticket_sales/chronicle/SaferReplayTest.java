@@ -2,7 +2,7 @@ package com.github.thierryabalea.ticket_sales.chronicle;
 
 import com.github.thierryabalea.ticket_sales.api.command.CreateConcert;
 import com.github.thierryabalea.ticket_sales.api.command.TicketPurchase;
-import com.github.thierryabalea.ticket_sales.api.event.SectionSeating;
+import com.github.thierryabalea.ticket_sales.api.SectionSeating;
 import com.github.thierryabalea.ticket_sales.api.service.CommandHandler;
 import com.github.thierryabalea.ticket_sales.api.service.EventHandler;
 import com.github.thierryabalea.ticket_sales.domain.ConcertService;
@@ -43,18 +43,19 @@ public class SaferReplayTest {
                         .methodWriterBuilder(CommandHandler.class)
                         .recordHistory(true)
                         .get();
-                CreateConcert createConcert = new CreateConcert(
-                        concertId,
-                        0,
-                        "Red Hot Chili Peppers",
-                        "Albert Hall",
-                        (short) 1,
-                        asList(new SectionSeating(sectionId, "Section A", 58.50F, Integer.MAX_VALUE))
-                );
 
+                long currentConcertId = concertId;
                 for (int i = 0; i < numberOfEventsPerQueue; i++) {
+                    CreateConcert createConcert = new CreateConcert(
+                            currentConcertId,
+                            0,
+                            "Red Hot Chili Peppers",
+                            "Albert Hall",
+                            (short) 1,
+                            asList(new SectionSeating(sectionId, "Section A", 58.50F, Integer.MAX_VALUE))
+                    );
                     commandHandler.onCreateConcert(createConcert);
-                    createConcert.concertId++;
+                    currentConcertId++;
                 }
             }
 

@@ -2,6 +2,9 @@ package com.github.thierryabalea.ticket_sales.api.event;
 
 import net.openhft.chronicle.wire.AbstractMarshallable;
 
+/**
+ * The system create frequently instances of this class. We make them mutable in order to reduce the garbage.
+ */
 public class SectionUpdated extends AbstractMarshallable {
     public long concertId;
     public long sectionId;
