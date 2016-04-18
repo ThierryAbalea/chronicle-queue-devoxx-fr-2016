@@ -2,10 +2,13 @@ package com.github.thierryabalea.ticket_sales.chronicle;
 
 import com.github.thierryabalea.ticket_sales.ConcertFactory;
 import com.github.thierryabalea.ticket_sales.api.command.TicketPurchase;
+import com.github.thierryabalea.ticket_sales.api.event.AllocationApproved;
+import com.github.thierryabalea.ticket_sales.api.event.AllocationRejected;
+import com.github.thierryabalea.ticket_sales.api.event.ConcertCreated;
+import com.github.thierryabalea.ticket_sales.api.event.SectionUpdated;
 import com.github.thierryabalea.ticket_sales.api.service.CommandHandler;
 import com.github.thierryabalea.ticket_sales.api.service.EventHandler;
 import com.github.thierryabalea.ticket_sales.domain.ConcertService;
-import com.github.thierryabalea.ticket_sales.web.ResponseWebServer;
 import net.openhft.affinity.AffinityLock;
 import net.openhft.chronicle.bytes.Bytes;
 import net.openhft.chronicle.core.Jvm;
@@ -15,7 +18,12 @@ import net.openhft.chronicle.queue.ChronicleQueue;
 import net.openhft.chronicle.queue.MethodReader;
 import net.openhft.chronicle.queue.impl.single.SingleChronicleQueueBuilder;
 import net.openhft.chronicle.wire.JSONWire;
-import org.openjdk.jmh.annotations.*;
+import org.openjdk.jmh.annotations.Benchmark;
+import org.openjdk.jmh.annotations.Mode;
+import org.openjdk.jmh.annotations.Scope;
+import org.openjdk.jmh.annotations.Setup;
+import org.openjdk.jmh.annotations.State;
+import org.openjdk.jmh.annotations.TearDown;
 import org.openjdk.jmh.runner.Runner;
 import org.openjdk.jmh.runner.RunnerException;
 import org.openjdk.jmh.runner.options.Options;
@@ -112,6 +120,7 @@ public class ComponentsBenchmark {
     }
 
     boolean first = true;
+
     @Benchmark
     public void benchmarkComponents() {
         if (first && OS.isLinux()) {
@@ -167,8 +176,8 @@ public class ComponentsBenchmark {
         EventHandler eventHandler = eventHandlerQueue.createAppender().methodWriter(EventHandler.class);
         CommandHandler commandHandler = new ConcertService(eventHandler);
 
-        ResponseWebServer responseWebServer = new ResponseWebServer();
-        eventHandlerReader = eventHandlerQueue.createTailer().methodReader(responseWebServer);
+        EventHandler noOpEventHandler = new NoOpEventHandler();
+        eventHandlerReader = eventHandlerQueue.createTailer().methodReader(noOpEventHandler);
 
         // commands
         commandHandlerQueuePath = new File(target, "ComponentsBenchmark-commandHandlerQueue-" + System.nanoTime());
@@ -194,4 +203,29 @@ public class ComponentsBenchmark {
     public interface JsonRequestHandler {
         void onRequest(JSONWire request);
     }
+
+    public static class NoOpEventHandler implements EventHandler {
+
+        @Override
+        public void onConcertAvailable(ConcertCreated concertCreated) {
+            // no op
+        }
+
+        @Override
+        public void onAllocationApproved(AllocationApproved allocationApproved) {
+            // no op
+        }
+
+        @Override
+        public void onAllocationRejected(AllocationRejected allocationRejected) {
+            // no op
+        }
+
+        @Override
+        public void onSectionUpdated(SectionUpdated sectionUpdated) {
+            // no op
+        }
+    }
+
+    ;
 }

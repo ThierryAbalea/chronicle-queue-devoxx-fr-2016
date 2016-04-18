@@ -49,26 +49,26 @@ public class ResponseWebServer implements EventHandler {
 
     @Override
     public void onConcertAvailable(ConcertCreated concertCreated) {
-//        JSONObject concertCreatedAsJson = concertCreatedToJson.toJson(concertCreated);
-//        concertsByConcertId.put(concertCreated.concertId, concertCreatedAsJson);
-//        enqueueEvent(concertCreatedAsJson);
+        JSONObject concertCreatedAsJson = concertCreatedToJson.toJson(concertCreated);
+        concertsByConcertId.put(concertCreated.concertId, concertCreatedAsJson);
+        enqueueEvent(concertCreatedAsJson);
     }
 
     @Override
     public void onSectionUpdated(SectionUpdated sectionUpdated) {
-//        JSONObject sectionUpdatedAsJson = sectionUpdatedToJson.toJson(sectionUpdated);
-//        sectionUpdatedByKey.put(sectionKeyFrom(sectionUpdated), sectionUpdatedAsJson);
-//        enqueueEvent(sectionUpdatedAsJson);
+        JSONObject sectionUpdatedAsJson = sectionUpdatedToJson.toJson(sectionUpdated);
+        sectionUpdatedByKey.put(sectionKeyFrom(sectionUpdated), sectionUpdatedAsJson);
+        enqueueEvent(sectionUpdatedAsJson);
     }
 
     @Override
     public void onAllocationApproved(AllocationApproved allocationApproved) {
-//        enqueueEvent(allocationApproved.accountId, allocationApprovedToJson.toJson(allocationApproved));
+        enqueueEvent(allocationApproved.accountId, allocationApprovedToJson.toJson(allocationApproved));
     }
 
     @Override
     public void onAllocationRejected(AllocationRejected allocationRejected) {
-//        enqueueEvent(allocationRejected.accountId, allocationRejectedToJson.toJson(allocationRejected));
+        enqueueEvent(allocationRejected.accountId, allocationRejectedToJson.toJson(allocationRejected));
     }
 
     public void onPoll(long accountId, long version) {
