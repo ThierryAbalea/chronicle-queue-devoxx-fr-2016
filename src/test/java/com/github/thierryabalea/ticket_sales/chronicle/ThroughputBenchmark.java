@@ -21,11 +21,15 @@ import net.openhft.chronicle.queue.MethodReader;
 import net.openhft.chronicle.queue.impl.single.SingleChronicleQueueBuilder;
 import net.openhft.chronicle.threads.LongPauser;
 import net.openhft.chronicle.threads.Pauser;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 public class ThroughputBenchmark implements JLBHTask {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ThroughputBenchmark.class);
 
     private static final int THROUGHPUT = Integer.getInteger("message.throughput", 400_000);
     private static final int MESSAGE_COUNT = Integer.getInteger("message.count", THROUGHPUT * 120);
@@ -39,6 +43,8 @@ public class ThroughputBenchmark implements JLBHTask {
     private CommandHandler commandHandler;
 
     public static void main(String[] args) {
+        LOGGER.info("throughput (system properties 'message.throughput'): {}", THROUGHPUT);
+        LOGGER.info("number of ticket purchase requests (system properties 'message.count') : {}", MESSAGE_COUNT);
         JLBHOptions lth = new JLBHOptions()
                 .warmUpIterations(50_000)
                 .iterations(MESSAGE_COUNT)
