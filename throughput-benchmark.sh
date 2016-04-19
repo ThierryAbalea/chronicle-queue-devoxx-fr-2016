@@ -1,0 +1,27 @@
+#!/bin/sh
+
+# be sure that /tmp is a tmpfs of 200 GB with 128GB of swap or use "-Dqueues.dir.path=/.../..." to specify the directory on the tmpfs.
+java -cp ticket_sales-1.0-SNAPSHOT-fat-tests.jar -Dmessage.throughput=50000 com.github.thierryabalea.ticket_sales.chronicle.ThroughputBenchmark -verbose:gc -Xmn1g -Xmx2g 2>&1 > throughput-benchmark-50k-tmpfs.log
+java -cp ticket_sales-1.0-SNAPSHOT-fat-tests.jar -Dmessage.throughput=100000 com.github.thierryabalea.ticket_sales.chronicle.ThroughputBenchmark -verbose:gc -Xmn1g -Xmx2g 2>&1 > throughput-benchmark-100k-tmpfs.log
+java -cp ticket_sales-1.0-SNAPSHOT-fat-tests.jar -Dmessage.throughput=200000 com.github.thierryabalea.ticket_sales.chronicle.ThroughputBenchmark -verbose:gc -Xmn1g -Xmx2g 2>&1 > throughput-benchmark-200k-tmpfs.log
+java -cp ticket_sales-1.0-SNAPSHOT-fat-tests.jar -Dmessage.throughput=300000 com.github.thierryabalea.ticket_sales.chronicle.ThroughputBenchmark -verbose:gc -Xmn1g -Xmx2g 2>&1 > throughput-benchmark-300k-tmpfs.log
+java -cp ticket_sales-1.0-SNAPSHOT-fat-tests.jar -Dmessage.throughput=400000 com.github.thierryabalea.ticket_sales.chronicle.ThroughputBenchmark -verbose:gc -Xmn1g -Xmx2g 2>&1 > throughput-benchmark-400k-tmpfs.log
+java -cp ticket_sales-1.0-SNAPSHOT-fat-tests.jar -Dmessage.throughput=500000 com.github.thierryabalea.ticket_sales.chronicle.ThroughputBenchmark -verbose:gc -Xmn1g -Xmx2g 2>&1 > throughput-benchmark-500k-tmpfs.log
+java -cp ticket_sales-1.0-SNAPSHOT-fat-tests.jar -Dmessage.throughput=600000 com.github.thierryabalea.ticket_sales.chronicle.ThroughputBenchmark -verbose:gc -Xmn1g -Xmx2g 2>&1 > throughput-benchmark-600k-tmpfs.log
+java -cp ticket_sales-1.0-SNAPSHOT-fat-tests.jar -Dmessage.throughput=700000 com.github.thierryabalea.ticket_sales.chronicle.ThroughputBenchmark -verbose:gc -Xmn1g -Xmx2g 2>&1 > throughput-benchmark-700k-tmpfs.log
+java -cp ticket_sales-1.0-SNAPSHOT-fat-tests.jar -Dmessage.throughput=800000 com.github.thierryabalea.ticket_sales.chronicle.ThroughputBenchmark -verbose:gc -Xmn1g -Xmx2g 2>&1 > throughput-benchmark-800k-tmpfs.log
+java -cp ticket_sales-1.0-SNAPSHOT-fat-tests.jar -Dmessage.throughput=900000 com.github.thierryabalea.ticket_sales.chronicle.ThroughputBenchmark -verbose:gc -Xmn1g -Xmx2g 2>&1 > throughput-benchmark-900k-tmpfs.log
+java -cp ticket_sales-1.0-SNAPSHOT-fat-tests.jar -Dmessage.throughput=1000000 com.github.thierryabalea.ticket_sales.chronicle.ThroughputBenchmark -verbose:gc -Xmn1g -Xmx2g 2>&1 > throughput-benchmark-1000k-tmpfs.log
+
+# the following command is run on a machine where /home filesystem is on a Hard Disk Drive. Free space required is > 100 GB (precise value unknown, sorry).
+java -cp ticket_sales-1.0-SNAPSHOT-fat-tests.jar -Dmessage.throughput=50000 -Dqueues.dir.path=/home/tmp/ThroughputBenchmark com.github.thierryabalea.ticket_sales.chronicle.ThroughputBenchmark -verbose:gc -Xmn1g -Xmx2g 2>&1 > throughput-benchmark-50k-hdd.log
+java -cp ticket_sales-1.0-SNAPSHOT-fat-tests.jar -Dmessage.throughput=100000 -Dqueues.dir.path=/home/tmp/ThroughputBenchmark com.github.thierryabalea.ticket_sales.chronicle.ThroughputBenchmark -verbose:gc -Xmn1g -Xmx2g 2>&1 > throughput-benchmark-100k-hdd.log
+java -cp ticket_sales-1.0-SNAPSHOT-fat-tests.jar -Dmessage.throughput=200000 -Dqueues.dir.path=/home/tmp/ThroughputBenchmark com.github.thierryabalea.ticket_sales.chronicle.ThroughputBenchmark -verbose:gc -Xmn1g -Xmx2g 2>&1 > throughput-benchmark-200k-hdd.log
+java -cp ticket_sales-1.0-SNAPSHOT-fat-tests.jar -Dmessage.throughput=300000 -Dqueues.dir.path=/home/tmp/ThroughputBenchmark com.github.thierryabalea.ticket_sales.chronicle.ThroughputBenchmark -verbose:gc -Xmn1g -Xmx2g 2>&1 > throughput-benchmark-300k-hdd.log
+java -cp ticket_sales-1.0-SNAPSHOT-fat-tests.jar -Dmessage.throughput=400000 -Dqueues.dir.path=/home/tmp/ThroughputBenchmark com.github.thierryabalea.ticket_sales.chronicle.ThroughputBenchmark -verbose:gc -Xmn1g -Xmx2g 2>&1 > throughput-benchmark-400k-hdd.log
+java -cp ticket_sales-1.0-SNAPSHOT-fat-tests.jar -Dmessage.throughput=500000 -Dqueues.dir.path=/home/tmp/ThroughputBenchmark com.github.thierryabalea.ticket_sales.chronicle.ThroughputBenchmark -verbose:gc -Xmn1g -Xmx2g 2>&1 > throughput-benchmark-500k-hdd.log
+java -cp ticket_sales-1.0-SNAPSHOT-fat-tests.jar -Dmessage.throughput=600000 -Dqueues.dir.path=/home/tmp/ThroughputBenchmark com.github.thierryabalea.ticket_sales.chronicle.ThroughputBenchmark -verbose:gc -Xmn1g -Xmx2g 2>&1 > throughput-benchmark-600k-hdd.log
+java -cp ticket_sales-1.0-SNAPSHOT-fat-tests.jar -Dmessage.throughput=700000 -Dqueues.dir.path=/home/tmp/ThroughputBenchmark com.github.thierryabalea.ticket_sales.chronicle.ThroughputBenchmark -verbose:gc -Xmn1g -Xmx2g 2>&1 > throughput-benchmark-700k-hdd.log
+java -cp ticket_sales-1.0-SNAPSHOT-fat-tests.jar -Dmessage.throughput=800000 -Dqueues.dir.path=/home/tmp/ThroughputBenchmark com.github.thierryabalea.ticket_sales.chronicle.ThroughputBenchmark -verbose:gc -Xmn1g -Xmx2g 2>&1 > throughput-benchmark-800k-hdd.log
+java -cp ticket_sales-1.0-SNAPSHOT-fat-tests.jar -Dmessage.throughput=900000 -Dqueues.dir.path=/home/tmp/ThroughputBenchmark com.github.thierryabalea.ticket_sales.chronicle.ThroughputBenchmark -verbose:gc -Xmn1g -Xmx2g 2>&1 > throughput-benchmark-900k-hdd.log
+java -cp ticket_sales-1.0-SNAPSHOT-fat-tests.jar -Dmessage.throughput=1000000 -Dqueues.dir.path=/home/tmp/ThroughputBenchmark com.github.thierryabalea.ticket_sales.chronicle.ThroughputBenchmark -verbose:gc -Xmn1g -Xmx2g 2>&1 > throughput-benchmark-1000k-hdd.log
