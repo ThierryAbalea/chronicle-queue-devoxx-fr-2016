@@ -36,8 +36,8 @@ public class ThroughputBenchmark implements JLBHTask {
     private static final boolean ACCOUNT_FOR_COORDINATED_OMMISSION = true;
 
     private final UUID uuid = UUID.randomUUID();
-    private final String eventHandlerQueuePath = OS.TMP + "ThroughputBenchmark/" + uuid + "/eventHandlerQueue";
-    private final String commandHandlerQueuePath = OS.TMP + "ThroughputBenchmark/" + uuid + "/commandHandlerQueuePath";
+    private final String eventHandlerQueuePath = OS.TMP + "/ThroughputBenchmark/" + uuid + "/eventHandlerQueue";
+    private final String commandHandlerQueuePath = OS.TMP + "/ThroughputBenchmark/" + uuid + "/commandHandlerQueuePath";
     private final TicketPurchase ticketPurchase = new TicketPurchase(1, 1, 1, 12, 76);
     private EventHandlerSampler eventHandlerSampler;
     private CommandHandler commandHandler;
