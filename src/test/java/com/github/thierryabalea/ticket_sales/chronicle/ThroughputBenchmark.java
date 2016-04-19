@@ -33,12 +33,12 @@ public class ThroughputBenchmark implements JLBHTask {
 
     private static final int THROUGHPUT = Integer.getInteger("message.throughput", 400_000);
     private static final int MESSAGE_COUNT = Integer.getInteger("message.count", THROUGHPUT * 120);
+    private static final String QUEUE_DIRECTORY_PATH = System.getProperty("queues.dir.path", OS.TMP + "/ThroughputBenchmark");
     private static final boolean ACCOUNT_FOR_COORDINATED_OMMISSION = true;
-    private static final String QUEUE_DIRECTORY_PATH = System.getProperty("queues.dir.path", OS.TMP + "/ThroughputBenchmark/");
 
     private final UUID uuid = UUID.randomUUID();
-    private final String eventHandlerQueuePath = QUEUE_DIRECTORY_PATH + uuid + "/eventHandlerQueue";
-    private final String commandHandlerQueuePath = QUEUE_DIRECTORY_PATH + uuid + "/commandHandlerQueuePath";
+    private final String eventHandlerQueuePath = QUEUE_DIRECTORY_PATH + "/" +  uuid + "/eventHandlerQueue";
+    private final String commandHandlerQueuePath = QUEUE_DIRECTORY_PATH + "/" +  uuid + "/commandHandlerQueuePath";
     private final TicketPurchase ticketPurchase = new TicketPurchase(1, 1, 1, 12, 76);
     private EventHandlerSampler eventHandlerSampler;
     private CommandHandler commandHandler;
