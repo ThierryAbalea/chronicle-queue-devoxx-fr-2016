@@ -23,23 +23,20 @@ public class ChronicleConcertServiceMain extends Thread {
         EventHandler eventHandler = eventHandlerQueue
                 .createAppender()
                 .methodWriterBuilder(EventHandler.class)
-                .recordHistory(true)
                 .get();
 
         CommandHandler commandHandler = new ConcertService(eventHandler);
 
         String commandHandlerQueuePath = format("%s/%s", OS.TARGET, "commandHandlerQueue");
-        ChronicleQueue commandHandlerQueue = SingleChronicleQueueBuilder.binary(commandHandlerQueuePath).sourceId(1).build();
+        ChronicleQueue commandHandlerQueue = SingleChronicleQueueBuilder.binary(commandHandlerQueuePath).build();
         MethodReader commandHandlerReader = commandHandlerQueue
                 .createTailer()
-                .afterLastWritten(commandHandlerQueue)
                 .methodReader(commandHandler);
 
         String createConcertQueuePath = format("%s/%s", OS.TARGET, "createConcertQueue");
-        ChronicleQueue createConcertQueue = SingleChronicleQueueBuilder.binary(createConcertQueuePath).sourceId(2).build();
+        ChronicleQueue createConcertQueue = SingleChronicleQueueBuilder.binary(createConcertQueuePath).build();
         MethodReader createConcertReader = createConcertQueue
                 .createTailer()
-                .afterLastWritten(createConcertQueue)
                 .methodReader(commandHandler);
 
         Runtime.getRuntime().addShutdownHook(new Thread() {

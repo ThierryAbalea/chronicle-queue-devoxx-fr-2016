@@ -38,7 +38,6 @@ public class ChronicleWebMain extends Thread {
         CommandHandler commandHandler = commandHandlerQueue
                 .createAppender()
                 .methodWriterBuilder(CommandHandler.class)
-                .recordHistory(true)
                 .get();
 
         ExecutorService executorService = newSingleThreadExecutor();
@@ -54,7 +53,6 @@ public class ChronicleWebMain extends Thread {
         ChronicleQueue eventHandlerQueue = SingleChronicleQueueBuilder.binary(eventHandlerQueuePath).build();
         MethodReader eventHandlerReader = eventHandlerQueue
                 .createTailer()
-                .afterLastWritten(eventHandlerQueue)
                 .methodReader(responseWebServer);
 
         Runtime.getRuntime().addShutdownHook(new Thread() {

@@ -15,7 +15,6 @@ public class SeedClient {
         try (ChronicleQueue queue = SingleChronicleQueueBuilder.binary(createConcertQueuePath).build()) {
             CommandHandler commandHandler = queue.createAppender()
                     .methodWriterBuilder(CommandHandler.class)
-                    .recordHistory(true)
                     .get();
             createConcerts().stream().forEachOrdered(commandHandler::onCreateConcert);
         }
