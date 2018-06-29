@@ -1,7 +1,10 @@
-Ticketing
-=========
+Chronique Queue Example Code
+============================
 
-This is the example code from the [Disruptor talk at Devoxx
+It's an example code for a talk (a Tool In Action) about the Java library [Chronicle Queue](https://github.com/OpenHFT/Chronicle-Queue) at Devoxx France 2016 ([video](https://www.youtube.com/watch?v=yXZahjrbhc0) | [slides](https://www.slideshare.net/ThierryAbalea/dbridez-les-performances-de-vos-applications-avec-chronicle-queue)). 
+
+It's an event-sourced implementation of a ticket-master like ticket booking system. There are 2 micro-services (the web server & the "ticket booking" service). The communication between the 2 services is based on Chronicle Queue.
+
+This code is a clone of https://github.com/mikeb01/ticketing It was initialy an example code from the [Disruptor talk at Devoxx
 2011](http://www.parleys.com/play/514892290364bc17fc56c469/chapter0/related).
-It is a demonstration of how to use the Disruptor to build an event-sourced
-implementation of a ticket-master like ticket booking system.
+The original code was a demonstration of how to use the Disruptor.
